@@ -1,1 +1,2 @@
 # Buddy-studio
+# ssh setup
