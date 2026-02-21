@@ -1,70 +1,84 @@
-# Getting Started with Create React App
+# BuddyStudio Frontend (React)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React frontend for BuddyStudio photography studio. Public homepage with packages, category browsing, appointment booking, and a full admin panel.
 
-## Available Scripts
+## Setup
 
-In the project directory, you can run:
+```bash
+cd frontend
+npm install
+npm start
+```
 
-### `npm start`
+Runs on `http://localhost:3000`. Requires the Rails backend running on port 3001.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Pages
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Public Pages
+| Page | Route | Description |
+|------|-------|-------------|
+| Home | `/` | Hero, categories grid, featured packages, appointment form |
+| Packages | `/packages` | All packages with category filter tabs |
+| PackageDetail | `/packages/:id` | Full item breakdown, pricing, "Book Now" |
+| Signup | `/signup` | Registration (name, email, mobile, password, role) |
+| Login | `/login` | Email + password, routes by role |
+| VerifyOtp | `/verify-otp` | 6-digit OTP input |
+| PendingApproval | `/pending-approval` | Staff waiting for admin approval |
 
-### `npm test`
+### Authenticated Pages
+| Page | Route | Description |
+|------|-------|-------------|
+| Dashboard | `/dashboard` | User profile info, links to homepage and admin |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Admin Pages (sidebar layout, admin-only)
+| Page | Route | Description |
+|------|-------|-------------|
+| Staff | `/admin/staff` | Staff list with approve/reject |
+| Customers | `/admin/customers` | Customer list |
+| Equipment | `/admin/equipment` | CRUD for equipment master list |
+| Categories | `/admin/categories` | CRUD for package categories |
+| Packages | `/admin/packages` | CRUD with equipment item builder, pricing, discounts |
+| Appointments | `/admin/appointments` | Inquiry list with status management |
 
-### `npm run build`
+## Key Files
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| File | Purpose |
+|------|---------|
+| `src/App.js` | Root routing with nested admin routes |
+| `src/api.js` | Axios instance with JWT interceptors |
+| `src/context/AuthContext.js` | Global auth state management |
+| `src/components/Navbar.js` | Public site navigation bar |
+| `src/components/ProtectedRoute.js` | Auth + role route guard |
+| `src/pages/admin/AdminLayout.js` | Admin sidebar layout with `<Outlet>` |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Package Flow (User Journey)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Visitor arrives at `/` -- sees hero, categories, featured packages
+2. Clicks a category -- goes to `/packages?category=X`
+3. Clicks a package -- goes to `/packages/:id` with full detail
+4. Clicks "Book Now":
+   - If logged in: shows inline inquiry form (pre-filled from user data)
+   - If not logged in: redirects to `/signup` with return URL
+5. Submits inquiry -- appointment created, confirmation shown
+6. Admin sees appointment in `/admin/appointments`, updates status
 
-### `npm run eject`
+## Styling
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+All styles in `src/App.css`:
+- CSS custom properties for consistent theming
+- Homepage: gradient hero, category cards with icons, package cards with discount badges
+- Package detail: two-column layout (content + sticky price card)
+- Admin: dark sidebar with navigation links, white content area
+- Responsive at 900px (admin layout) and 600px (mobile)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Phase 2 Changes
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Change | Why |
+|--------|-----|
+| Added Navbar component | Consistent navigation across public pages |
+| Added Home.js homepage | Landing page with categories, featured packages, appointment form |
+| Added Packages.js with category filter | Browse all packages by category |
+| Added PackageDetail.js with Book Now | Show what's included, pricing, inquiry form |
+| Restructured admin from tabs to sidebar | Grew from 2 to 6 sections, sidebar scales better |
+| Added AdminEquipment, AdminCategories, AdminPackages, AdminAppointments | Full CRUD management for admin |
+| Default route changed from `/login` to `/` | Homepage is now the entry point |

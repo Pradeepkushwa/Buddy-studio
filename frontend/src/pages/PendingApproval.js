@@ -7,7 +7,7 @@ export default function PendingApproval() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (
