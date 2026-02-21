@@ -5,9 +5,17 @@
 
 # Read more: https://github.com/cyu/rack-cors
 
+# Origins allowed for CORS. Set FRONTEND_URL on Render (e.g. https://buddystudio.onrender.com).
+origins = [
+  'localhost:3000',
+  'http://localhost:3000',
+  '127.0.0.1:3000',
+  ENV['FRONTEND_URL']
+].compact
+
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'localhost:3000', '127.0.0.1:3000'
+    origins(*origins)
     resource '*',
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
