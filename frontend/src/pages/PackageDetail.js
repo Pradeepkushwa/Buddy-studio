@@ -20,11 +20,6 @@ export default function PackageDetail() {
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showInquiry, setShowInquiry] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', mobile_number: '', preferred_date: '', message: '' });
-  const [msg, setMsg] = useState('');
-  const [err, setErr] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -38,25 +33,10 @@ export default function PackageDetail() {
 
   const handleBookNow = () => {
     if (!token || !user) {
-      navigate(`/signup?redirect=/packages/${id}`);
+      navigate(`/login?redirect=/book/${id}`);
       return;
     }
-    setShowInquiry(true);
-    setForm(f => ({ ...f, name: user.name || '', email: user.email || '', mobile_number: user.mobile_number || '' }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErr(''); setMsg(''); setSubmitting(true);
-    try {
-      const res = await api.post('/appointments', {
-        appointment: { ...form, package_id: pkg.id, event_type: pkg.category_name }
-      });
-      setMsg(res.data.message);
-      setShowInquiry(false);
-    } catch (error) {
-      setErr(error.response?.data?.errors?.join(', ') || 'Something went wrong');
-    } finally { setSubmitting(false); }
+    navigate(`/book/${id}`);
   };
 
   if (loading) return <div className="home-page"><Navbar /><p className="empty-state">Loading...</p></div>;
@@ -102,49 +82,10 @@ export default function PackageDetail() {
                 <span className="offer-price-lg">{formatPrice(pkg.offer_price)}</span>
               </div>
               <button className="btn-primary" onClick={handleBookNow}>Book Now</button>
-              <p className="price-note">Our team will contact you to confirm details</p>
+              <p className="price-note">Secure your event dates today</p>
             </div>
           </div>
         </div>
-
-        {msg && <div className="auth-success" style={{marginTop: 24}}>{msg}</div>}
-
-        {showInquiry && (
-          <div className="inquiry-form-wrapper">
-            <h3>Complete Your Booking Request</h3>
-            {err && <div className="auth-error">{err}</div>}
-            <form onSubmit={handleSubmit}>
-              <div className="appt-form-grid">
-                <div className="form-group">
-                  <label>Full Name *</label>
-                  <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-                </div>
-                <div className="form-group">
-                  <label>Email *</label>
-                  <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
-                </div>
-                <div className="form-group">
-                  <label>Mobile</label>
-                  <input type="tel" value={form.mobile_number} onChange={e => setForm({...form, mobile_number: e.target.value})} />
-                </div>
-                <div className="form-group">
-                  <label>Preferred Date</label>
-                  <input type="date" value={form.preferred_date} onChange={e => setForm({...form, preferred_date: e.target.value})} />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Message</label>
-                <textarea value={form.message} onChange={e => setForm({...form, message: e.target.value})} rows={3} placeholder="Any special requests..." />
-              </div>
-              <div className="inquiry-actions">
-                <button type="submit" className="btn-primary" disabled={submitting} style={{maxWidth: 240}}>
-                  {submitting ? 'Submitting...' : 'Submit Request'}
-                </button>
-                <button type="button" className="btn-secondary" onClick={() => setShowInquiry(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        )}
       </section>
     </div>
   );

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hi <%= @user.name.presence || 'there' %>,</p>
+    <p>You requested to change your BuddyStudio email to <strong><%= @new_email %></strong>.</p>
+    <p>Your verification code is:</p>
+    <h2><%= @otp %></h2>
+    <p>This code expires in 10 minutes. If you didn't request this, please ignore this email.</p>
+    <p>— BuddyStudio</p>
+  </body>
+</html>

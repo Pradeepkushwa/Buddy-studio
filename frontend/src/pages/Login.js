@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -17,10 +19,14 @@ export default function Login() {
     setSubmitting(true);
     try {
       const res = await login(form.email, form.password);
-      const role = res.user?.role;
-      if (role === 'admin') navigate('/admin');
-      else if (role === 'staff') navigate('/dashboard');
-      else navigate('/dashboard');
+      if (redirectTo) {
+        navigate(redirectTo);
+      } else {
+        const role = res.user?.role;
+        if (role === 'admin') navigate('/admin');
+        else if (role === 'staff') navigate('/staff');
+        else navigate('/dashboard');
+      }
     } catch (err) {
       const data = err.response?.data;
       if (data?.verification_status === 'pending' && data?.message) {
@@ -52,6 +58,7 @@ export default function Login() {
             {submitting ? 'Logging in...' : 'Log In'}
           </button>
         </form>
+        <p className="auth-link forgot-link"><Link to="/forgot-password">Forgot Password?</Link></p>
         <p className="auth-link">Don't have an account? <Link to="/signup">Sign up</Link></p>
       </div>
     </div>

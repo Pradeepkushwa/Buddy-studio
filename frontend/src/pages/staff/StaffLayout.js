@@ -2,19 +2,12 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = [
-  { to: '/admin/dashboard', label: 'Dashboard' },
-  { to: '/admin/staff', label: 'Staff' },
-  { to: '/admin/customers', label: 'Customers' },
-  { to: '/admin/equipment', label: 'Equipment' },
-  { to: '/admin/categories', label: 'Categories' },
-  { to: '/admin/packages', label: 'Packages' },
-  { to: '/admin/bookings', label: 'Bookings' },
-  { to: '/admin/appointments', label: 'Appointments' },
-  { to: '/admin/gallery', label: 'Gallery' },
-  { to: '/admin/reviews', label: 'Reviews' },
+  { to: '/staff/equipment', label: 'Equipment' },
+  { to: '/staff/packages', label: 'My Packages' },
+  { to: '/staff/profile', label: 'Profile' },
 ];
 
-export default function AdminLayout() {
+export default function StaffLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -24,7 +17,7 @@ export default function AdminLayout() {
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-brand">BuddyStudio</div>
-        <div className="admin-sidebar-subtitle">Admin Panel</div>
+        <div className="admin-sidebar-subtitle">Staff Panel</div>
         <nav className="admin-nav">
           {NAV_ITEMS.map(item => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => `admin-nav-link ${isActive ? 'admin-nav-active' : ''}`}>
@@ -34,7 +27,7 @@ export default function AdminLayout() {
         </nav>
         <div className="admin-sidebar-footer">
           <span className="admin-user-name">{user?.name}</span>
-          <button className="btn-secondary btn-sm" onClick={() => navigate('/profile')}>Profile</button>
+          <button className="btn-secondary btn-sm" onClick={() => navigate('/staff/profile')}>Profile</button>
           <button className="btn-secondary btn-sm" onClick={handleLogout}>Logout</button>
         </div>
       </aside>

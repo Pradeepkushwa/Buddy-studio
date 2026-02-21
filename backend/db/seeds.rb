@@ -85,3 +85,39 @@ if wedding_cat && Package.count.zero?
 
   puts "Package: #{pkg.name} (#{pkg.price} -> #{pkg.offer_price})"
 end
+
+# Seed gallery items
+gallery_data = [
+  { title: 'Beautiful Wedding Ceremony', media_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800', media_type: 'photo', category: 'Wedding', position: 1 },
+  { title: 'Happy Couple Moments', media_url: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=800', media_type: 'photo', category: 'Love Moments', position: 2 },
+  { title: 'Birthday Celebration', media_url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800', media_type: 'photo', category: 'Birthday', position: 3 },
+  { title: 'Client Testimonial', media_url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800', media_type: 'photo', category: 'Happy Clients', position: 4 },
+  { title: 'Behind the Scenes', media_url: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800', media_type: 'photo', category: 'Behind the Scenes', position: 5 }
+]
+
+gallery_data.each do |data|
+  item = GalleryItem.find_or_create_by!(title: data[:title]) do |g|
+    g.media_url = data[:media_url]
+    g.media_type = data[:media_type]
+    g.category = data[:category]
+    g.position = data[:position]
+  end
+  puts "Gallery: #{item.title}"
+end
+
+# Seed sample reviews
+reviews_data = [
+  { name: 'Rajesh Kumar', email: 'rajesh@example.com', rating: 5, feedback: 'Amazing wedding photography! They captured every beautiful moment.', approved: true },
+  { name: 'Priya Sharma', email: 'priya@example.com', rating: 4, feedback: 'Great team and professional work. The album quality was excellent.', approved: true },
+  { name: 'Amit Patel', email: 'amit@example.com', rating: 5, feedback: 'Best photography studio in the city! Highly recommended for weddings.', approved: true }
+]
+
+reviews_data.each do |data|
+  review = Review.find_or_create_by!(email: data[:email]) do |r|
+    r.name = data[:name]
+    r.rating = data[:rating]
+    r.feedback = data[:feedback]
+    r.approved = data[:approved]
+  end
+  puts "Review: #{review.name} - #{review.rating} stars"
+end

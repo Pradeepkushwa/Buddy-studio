@@ -1,0 +1,9 @@
+Hi <%= @user.name.presence || 'there' %>,
+
+You requested to change your BuddyStudio email to <%= @new_email %>.
+
+Your verification code is: <%= @otp %>
+
+This code expires in 10 minutes. If you didn't request this, please ignore this email.
+
+— BuddyStudio

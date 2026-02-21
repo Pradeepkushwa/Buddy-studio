@@ -13,6 +13,10 @@ class User < ApplicationRecord
   validates :role, presence: true, inclusion: { in: ROLES }
   validates :verification_status, inclusion: { in: VERIFICATION_STATUSES }, allow_nil: true
 
+  has_many :bookings, dependent: :destroy
+  has_many :created_packages, class_name: 'Package', foreign_key: :created_by_id, dependent: :nullify
+  has_many :gallery_items, foreign_key: :uploaded_by_id, dependent: :nullify
+
   before_validation :set_default_verification_status, on: :create
   before_validation :normalize_email
 
@@ -56,6 +60,23 @@ class User < ApplicationRecord
   def mark_email_verified!
     update!(email_verified: true, verification_status: 'verified')
     clear_otp!
+  end
+
+  def generate_reset_otp!
+    self.reset_otp = format('%06d', rand(0..999_999))
+    self.reset_otp_sent_at = Time.current
+    save!
+    reset_otp
+  end
+
+  def reset_otp_valid?(code)
+    return false if reset_otp.blank? || code.blank?
+    return false if reset_otp_sent_at.blank? || reset_otp_sent_at < OTP_EXPIRY_MINUTES.minutes.ago
+    ActiveSupport::SecurityUtils.secure_compare(reset_otp, code.to_s)
+  end
+
+  def clear_reset_otp!
+    update_columns(reset_otp: nil, reset_otp_sent_at: nil)
   end
 
   private

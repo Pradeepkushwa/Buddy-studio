@@ -36,6 +36,12 @@ module JwtAuthenticatable
     render json: { error: 'Forbidden' }, status: :forbidden unless current_user&.admin?
   end
 
+  def authenticate_staff_or_admin!
+    unless current_user && (current_user.admin? || current_user.staff?)
+      render json: { error: 'Forbidden' }, status: :forbidden
+    end
+  end
+
   def require_active_user!
     return render json: { error: 'Unauthorized' }, status: :unauthorized unless current_user
     return render json: { error: 'Account pending approval' }, status: :forbidden unless current_user.active?

@@ -1,27 +1,32 @@
 # frozen_string_literal: true
 
-module Admin
+module Staff
   class PackagesController < ApplicationController
-    before_action :authenticate_admin!
-    before_action :set_package, only: %i[update destroy approve reject]
+    before_action :authenticate_staff_or_admin!
+    before_action :set_package, only: %i[update destroy]
 
     def index
-      packages = Package.includes(:category, package_items: :equipment).order(created_at: :desc)
+      packages = current_user.created_packages.includes(:category, package_items: :equipment).order(created_at: :desc)
       render json: { packages: packages.map { |p| package_json(p) } }
     end
 
     def create
       package = Package.new(package_params)
+      package.created_by = current_user
+      package.approval_status = current_user.admin? ? 'approved' : 'pending_approval'
       if package.save
-        render json: { package: package_json(package.reload) }, status: :created
+        render json: { package: package_json(package.reload), message: staff_message }, status: :created
       else
         render json: { errors: package.errors.full_messages }, status: :unprocessable_entity
       end
     end
 
     def update
-      if @package.update(package_params)
-        render json: { package: package_json(@package.reload) }
+      @package.assign_attributes(package_params)
+      @package.approval_status = 'pending_approval' if current_user.staff? && @package.changed?
+      if @package.save
+        msg = (current_user.staff? && @package.approval_status == 'pending_approval') ? 'Package updated and sent for re-approval' : 'Package updated'
+        render json: { package: package_json(@package.reload), message: msg }
       else
         render json: { errors: @package.errors.full_messages }, status: :unprocessable_entity
       end
@@ -32,20 +37,10 @@ module Admin
       render json: { message: 'Package deactivated' }
     end
 
-    def approve
-      @package.update!(approval_status: 'approved')
-      render json: { package: package_json(@package.reload), message: 'Package approved' }
-    end
-
-    def reject
-      @package.update!(approval_status: 'rejected')
-      render json: { package: package_json(@package.reload), message: 'Package rejected' }
-    end
-
     private
 
     def set_package
-      @package = Package.find(params[:id])
+      @package = current_user.created_packages.find(params[:id])
     end
 
     def package_params
@@ -54,6 +49,10 @@ module Admin
         :discount_percentage, :active, :featured,
         package_items_attributes: %i[id equipment_id quantity notes _destroy]
       )
+    end
+
+    def staff_message
+      current_user.admin? ? 'Package created' : 'Package created and sent for admin approval'
     end
 
     def package_json(p)
@@ -65,7 +64,6 @@ module Admin
         offer_price: p.offer_price.to_f,
         active: p.active, featured: p.featured,
         approval_status: p.approval_status,
-        created_by_name: p.created_by&.name,
         items: p.package_items.map { |i| item_json(i) },
         created_at: p.created_at
       }
