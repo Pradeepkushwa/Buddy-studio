@@ -35,14 +35,14 @@ npm start                   # runs on port 3000
 
 ### Default Admin
 
-- Email: `admin@buddystudio.com`
-- Password: `admin123`
+- Email: `...........`
+- Password: `..........`
 
 ### SMTP Configuration (.env)
 
 ```
-MAILER_FROM=rordeveloper464@gmail.com
-SMTP_USERNAME=rordeveloper464@gmail.com
+MAILER_FROM=.........
+SMTP_USERNAME=.......
 SMTP_PASSWORD=<app-password>
 ```
 
