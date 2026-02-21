@@ -1,20 +1,39 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import StarRating from '../components/StarRating';
 import api from '../api';
 
 export default function Home() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [featured, setFeatured] = useState([]);
+  const [gallery, setGallery] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
   const [apptForm, setApptForm] = useState({ name: '', email: '', mobile_number: '', preferred_date: '', event_type: '', message: '' });
   const [apptMsg, setApptMsg] = useState('');
   const [apptErr, setApptErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ name: '', email: '', rating: 5, feedback: '' });
+  const [reviewMsg, setReviewMsg] = useState('');
+  const [reviewErr, setReviewErr] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   useEffect(() => {
     api.get('/categories').then(r => setCategories(r.data.categories)).catch(() => {});
-    api.get('/packages').then(r => setFeatured(r.data.packages.filter(p => p.featured))).catch(() => {});
+    api.get('/packages').then(r => {
+      const sorted = [...r.data.packages].sort((a, b) => (b.discount_percentage || 0) - (a.discount_percentage || 0));
+      setFeatured(sorted.slice(0, 3));
+    }).catch(() => {});
+    api.get('/gallery').then(r => setGallery(r.data.gallery_items.slice(0, 6))).catch(() => {});
+    api.get('/reviews').then(r => {
+      setReviews(r.data.reviews.slice(0, 6));
+      setAvgRating(r.data.average_rating);
+      setTotalReviews(r.data.total_reviews);
+    }).catch(() => {});
   }, []);
 
   const handleAppt = async (e) => {
@@ -29,6 +48,19 @@ export default function Home() {
     } finally { setSubmitting(false); }
   };
 
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setReviewErr(''); setReviewMsg(''); setReviewSubmitting(true);
+    try {
+      const res = await api.post('/reviews', { review: reviewForm });
+      setReviewMsg(res.data.message);
+      setReviewForm({ name: '', email: '', rating: 5, feedback: '' });
+      setShowReviewForm(false);
+    } catch (err) {
+      setReviewErr(err.response?.data?.errors?.join(', ') || 'Something went wrong');
+    } finally { setReviewSubmitting(false); }
+  };
+
   const formatPrice = (p) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(p);
 
   return (
@@ -39,6 +71,12 @@ export default function Home() {
         <div className="hero-content">
           <h1>Capture Your Perfect Moments</h1>
           <p>Professional photography and videography for weddings, birthdays, events, and more.</p>
+          {totalReviews > 0 && (
+            <div className="hero-rating">
+              <StarRating rating={Math.round(avgRating)} size={22} />
+              <span>{avgRating} / 5 ({totalReviews} reviews)</span>
+            </div>
+          )}
           <div className="hero-actions">
             <Link to="/packages" className="btn-hero">View Packages</Link>
             <a href="#appointment" className="btn-hero-outline">Book Appointment</a>
@@ -69,8 +107,8 @@ export default function Home() {
         <section className="section section-alt" id="packages">
           <h2 className="section-title">Featured Packages</h2>
           <p className="section-subtitle">Special offers handpicked for you</p>
-          <div className="package-grid">
-            {featured.map(p => (
+          <div className="package-grid featured-grid">
+            {featured.slice(0, 3).map(p => (
               <div key={p.id} className="package-card">
                 {p.discount_percentage > 0 && <span className="discount-badge">{p.discount_percentage}% OFF</span>}
                 <span className="package-category">{p.category_name}</span>
@@ -88,6 +126,97 @@ export default function Home() {
             <Link to="/packages" className="btn-hero-outline">View All Packages</Link>
           </div>
         </section>
+      )}
+
+      {gallery.length > 0 && (
+        <section className="section" id="gallery">
+          <h2 className="section-title">Our Work</h2>
+          <p className="section-subtitle">A glimpse of moments we've captured</p>
+          <div className="gallery-grid gallery-preview">
+            {gallery.map(item => (
+              <div key={item.id} className="gallery-item">
+                {item.media_type === 'photo' ? (
+                  <img src={item.media_url} alt={item.title} className="gallery-image" />
+                ) : (
+                  <div className="gallery-video-wrapper">
+                    <iframe src={item.media_url} title={item.title} frameBorder="0" allowFullScreen />
+                  </div>
+                )}
+                <div className="gallery-item-info">
+                  <h4>{item.title}</h4>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="section-cta">
+            <Link to="/gallery" className="btn-hero-outline">View Full Gallery</Link>
+          </div>
+        </section>
+      )}
+
+      <section className="section section-alt" id="reviews">
+        <div className="reviews-header">
+          <div>
+            <h2 className="section-title" style={{ textAlign: 'left' }}>What Our Clients Say</h2>
+            {totalReviews > 0 && (
+              <p className="section-subtitle" style={{ textAlign: 'left', marginBottom: 0 }}>
+                <StarRating rating={Math.round(avgRating)} size={18} /> {avgRating}/5 ({totalReviews} reviews)
+              </p>
+            )}
+          </div>
+          <button className="btn-rate-us" onClick={() => setShowReviewForm(true)}>Rate Us</button>
+        </div>
+        {reviews.length > 0 ? (
+          <div className="reviews-scroll-container">
+            <div className="reviews-scroll">
+              {reviews.slice(0, 3).map(r => (
+                <div key={r.id} className="review-card review-card-scroll">
+                  <StarRating rating={r.rating} size={18} />
+                  <p className="review-feedback">"{r.feedback}"</p>
+                  <span className="review-author">- {r.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>No reviews yet. Be the first to share your experience!</p>
+          </div>
+        )}
+      </section>
+
+      {showReviewForm && (
+        <div className="modal-overlay" onClick={() => setShowReviewForm(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>Share Your Experience</h3>
+            {reviewMsg && <div className="auth-success">{reviewMsg}</div>}
+            {reviewErr && <div className="auth-error">{reviewErr}</div>}
+            <form onSubmit={handleReviewSubmit}>
+              <div className="form-group">
+                <label>Your Name *</label>
+                <input value={reviewForm.name} onChange={e => setReviewForm({...reviewForm, name: e.target.value})} required />
+              </div>
+              <div className="form-group">
+                <label>Email *</label>
+                <input type="email" value={reviewForm.email} onChange={e => setReviewForm({...reviewForm, email: e.target.value})} required />
+              </div>
+              <div className="form-group">
+                <label>Rating *</label>
+                <StarRating rating={reviewForm.rating} onChange={(r) => setReviewForm({...reviewForm, rating: r})} size={28} />
+              </div>
+              <div className="form-group">
+                <label>Your Feedback</label>
+                <textarea value={reviewForm.feedback} onChange={e => setReviewForm({...reviewForm, feedback: e.target.value})} rows={3} placeholder="Tell us about your experience..." />
+              </div>
+              <div className="inquiry-actions">
+                <button type="submit" className="btn-primary" disabled={reviewSubmitting}>
+                  {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+                </button>
+                <button type="button" className="btn-secondary" onClick={() => setShowReviewForm(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       <section className="section" id="appointment">

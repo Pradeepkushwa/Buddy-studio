@@ -2,7 +2,7 @@
 
 class PackagesController < ApplicationController
   def index
-    packages = Package.active.includes(:category, package_items: :equipment)
+    packages = Package.active.approved_packages.includes(:category, package_items: :equipment)
     packages = packages.where(category_id: params[:category_id]) if params[:category_id].present?
     packages = packages.order(featured: :desc, created_at: :desc)
 
@@ -12,7 +12,7 @@ class PackagesController < ApplicationController
   end
 
   def show
-    package = Package.active.includes(package_items: :equipment).find(params[:id])
+    package = Package.active.approved_packages.includes(package_items: :equipment).find(params[:id])
     render json: { package: package_detail(package) }
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Package not found' }, status: :not_found

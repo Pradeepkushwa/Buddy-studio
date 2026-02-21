@@ -110,7 +110,8 @@ class AuthController < ApplicationController
       role: u.role,
       verification_status: u.verification_status,
       email_verified: u.email_verified,
-      active: u.active?
+      active: u.active?,
+      avatar_url: u.avatar_url
     }
   end
 
