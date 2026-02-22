@@ -20,16 +20,32 @@ class AuthController < ApplicationController
     end
 
     if user.save
-      user.generate_otp!
-      UserMailer.otp_email(user).deliver_later
-      render json: {
-        message: 'Signup successful. Check your email for the verification code.',
-        user_id: user.id,
-        email: user.email,
-        role: user.role,
-        verification_status: user.verification_status,
-        requires_otp: true
-      }, status: :created
+      if Rails.env.production?
+        user.update!(email_verified: true, verification_status: user.staff? ? 'pending' : 'verified')
+        user.clear_otp!
+        token = user.active? ? encode_token(user.id) : nil
+        render json: {
+          message: user.staff? ? 'Signup successful. Your account is pending admin approval.' : 'Signup successful. You can now log in.',
+          user_id: user.id,
+          email: user.email,
+          role: user.role,
+          verification_status: user.verification_status,
+          requires_otp: false,
+          token: token,
+          user: token ? user_response(user) : nil
+        }, status: :created
+      else
+        user.generate_otp!
+        UserMailer.otp_email(user).deliver_later
+        render json: {
+          message: 'Signup successful. Check your email for the verification code.',
+          user_id: user.id,
+          email: user.email,
+          role: user.role,
+          verification_status: user.verification_status,
+          requires_otp: true
+        }, status: :created
+      end
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end

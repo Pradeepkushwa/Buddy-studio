@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Signup() {
-  const { signup } = useAuth();
+  const { signup, updateUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', mobile_number: '', password: '', password_confirmation: '', role: 'user' });
   const [error, setError] = useState('');
@@ -21,7 +21,19 @@ export default function Signup() {
     setSubmitting(true);
     try {
       const res = await signup(form);
-      navigate('/verify-otp', { state: { email: res.email, role: res.role } });
+      if (res.requires_otp === false) {
+        if (res.token && res.user) {
+          localStorage.setItem('token', res.token);
+          updateUser(res.user);
+          navigate(res.user.role === 'admin' ? '/admin' : '/dashboard');
+        } else if (res.role === 'staff') {
+          navigate('/pending-approval');
+        } else {
+          navigate('/login');
+        }
+      } else {
+        navigate('/verify-otp', { state: { email: res.email, role: res.role } });
+      }
     } catch (err) {
       setError(err.response?.data?.errors?.join(', ') || err.response?.data?.error || 'Signup failed');
     } finally {
