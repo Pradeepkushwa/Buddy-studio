@@ -13,6 +13,18 @@ Rails.application.configure do
   config.log_tags = [:request_id]
 
   config.action_mailer.perform_caching = false
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address:              ENV.fetch('SMTP_ADDRESS', 'smtp.gmail.com'),
+    port:                 ENV.fetch('SMTP_PORT', 587).to_i,
+    user_name:            ENV['SMTP_USERNAME'],
+    password:             ENV['SMTP_PASSWORD'],
+    authentication:       :plain,
+    enable_starttls_auto: true,
+    open_timeout:         10,
+    read_timeout:         10
+  }
   config.i18n.fallbacks = true
   config.active_support.deprecation = :notify
   config.active_support.disallowed_deprecation = :log
