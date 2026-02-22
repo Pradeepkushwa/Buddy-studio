@@ -21,9 +21,15 @@ class AuthController < ApplicationController
 
     if user.save
       user.generate_otp!
-      UserMailer.otp_email(user).deliver_now
+      email_sent = begin
+        UserMailer.otp_email(user).deliver_now
+        true
+      rescue => e
+        Rails.logger.error "Failed to send OTP email: #{e.message}"
+        false
+      end
       render json: {
-        message: 'Signup successful. Check your email for the verification code.',
+        message: email_sent ? 'Signup successful. Check your email for the verification code.' : 'Signup successful. Email delivery delayed — use Resend OTP.',
         user_id: user.id,
         email: user.email,
         role: user.role,
@@ -63,8 +69,13 @@ class AuthController < ApplicationController
     end
 
     user.generate_otp!
-    UserMailer.otp_email(user).deliver_now
-    render json: { message: 'Verification code sent again' }, status: :ok
+    begin
+      UserMailer.otp_email(user).deliver_now
+      render json: { message: 'Verification code sent again' }, status: :ok
+    rescue => e
+      Rails.logger.error "Failed to resend OTP: #{e.message}"
+      render json: { message: 'Email delivery delayed. Please try again in a moment.' }, status: :ok
+    end
   end
 
   # POST /auth/login
