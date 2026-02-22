@@ -67,7 +67,7 @@ class ProfileController < ApplicationController
 
     current_user.generate_reset_otp!
     current_user.update_columns(pending_email: new_email)
-    UserMailer.email_change_otp(current_user, new_email).deliver_now
+    UserMailer.email_change_otp(current_user, new_email).deliver_later
 
     render json: { message: "Verification code sent to #{new_email}" }, status: :ok
   end

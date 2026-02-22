@@ -10,7 +10,7 @@ class PasswordResetsController < ApplicationController
     end
 
     user.generate_reset_otp!
-    UserMailer.password_reset_email(user).deliver_now
+    UserMailer.password_reset_email(user).deliver_later
 
     render json: { message: 'Password reset code sent to your email', email: user.email }, status: :ok
   end
