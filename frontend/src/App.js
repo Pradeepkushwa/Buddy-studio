@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Suspense } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Packages from './pages/Packages';
@@ -33,8 +34,9 @@ import './App.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <Suspense fallback={null}>
+      <AuthProvider>
+        <BrowserRouter>
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
@@ -93,8 +95,9 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        </BrowserRouter>
+      </AuthProvider>
+    </Suspense>
   );
 }
 

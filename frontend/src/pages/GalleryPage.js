@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../api';
+import { useTranslation } from 'react-i18next';
 
 export default function GalleryPage() {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -12,22 +14,22 @@ export default function GalleryPage() {
     api.get('/gallery')
       .then(r => {
         setItems(r.data.gallery_items);
-        setCategories(['All', ...r.data.categories]);
+        setCategories([t('common.all'), ...r.data.categories]);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
-  const filtered = activeCategory === 'All' ? items : items.filter(i => i.category === activeCategory);
+  const filtered = activeCategory === t('common.all') || activeCategory === 'All' ? items : items.filter(i => i.category === activeCategory);
 
-  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">Loading...</p></div>;
+  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">{t('common.loading')}</p></div>;
 
   return (
     <div className="home-page">
       <Navbar />
       <div className="page-header">
-        <h1>Our Gallery</h1>
-        <p className="section-subtitle">Moments we've captured</p>
+        <h1>{t('gallery.title')}</h1>
+        <p className="section-subtitle">{t('gallery.subtitle')}</p>
       </div>
 
       <section className="section">
@@ -41,7 +43,7 @@ export default function GalleryPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="empty-state">No items in this category yet.</p>
+          <p className="empty-state">{t('gallery.no_items')}</p>
         ) : (
           <div className="gallery-grid">
             {filtered.map(item => (
@@ -67,7 +69,7 @@ export default function GalleryPage() {
       </section>
 
       <footer className="site-footer">
-        <p>BuddyStudio &mdash; Professional Photography &amp; Videography</p>
+        <p>{t('gallery.footer')}</p>
       </footer>
     </div>
   );

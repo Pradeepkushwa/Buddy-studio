@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../api';
+import { useTranslation } from 'react-i18next';
 
 const RAZORPAY_SCRIPT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
 
@@ -27,6 +28,7 @@ function loadRazorpayScript() {
 export default function PaymentPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
@@ -40,7 +42,7 @@ export default function PaymentPage() {
       .then(r => {
         const found = r.data.bookings.find(b => b.id === parseInt(id, 10));
         setBooking(found || null);
-        if (!found) setLoadError('Booking not found.');
+        if (!found) setLoadError(t('payment.booking_not_found'));
       })
       .catch((err) => {
         setBooking(null);
@@ -48,7 +50,7 @@ export default function PaymentPage() {
         setLoadError(msg);
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     fetchBooking();
@@ -107,8 +109,8 @@ export default function PaymentPage() {
     }
   };
 
-  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">Loading...</p></div>;
-  if (!booking) return <div className="home-page"><Navbar /><p className="empty-state">{loadError || 'Booking not found.'} <Link to="/my-bookings">My Bookings</Link>{loadError && loadError.includes('log in') ? <> · <Link to="/login">Log in</Link></> : null}</p></div>;
+  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">{t('common.loading')}</p></div>;
+  if (!booking) return <div className="home-page"><Navbar /><p className="empty-state">{loadError || t('payment.booking_not_found')} <Link to="/my-bookings">{t('payment.view_bookings')}</Link>{loadError && loadError.includes('log in') ? <> · <Link to="/login">Log in</Link></> : null}</p></div>;
 
   const alreadyPaid = booking.status === 'confirmed' || booking.payment_id;
 
@@ -116,32 +118,32 @@ export default function PaymentPage() {
     <div className="home-page">
       <Navbar />
       <div className="page-header">
-        <h1>Payment</h1>
+        <h1>{t('payment.title')}</h1>
       </div>
 
       <section className="section">
         <div className="payment-card">
           <div className="payment-summary">
-            <h3>Booking Summary</h3>
-            <div className="payment-row"><span>Package</span><strong>{booking.package_name}</strong></div>
-            <div className="payment-row"><span>Event Dates</span><strong>{booking.event_start_date} to {booking.event_end_date}</strong></div>
-            <div className="payment-row"><span>Venue</span><strong>{booking.event_address}</strong></div>
-            <div className="payment-row"><span>Contact</span><strong>{booking.phone_number}</strong></div>
+            <h3>{t('payment.summary_title')}</h3>
+            <div className="payment-row"><span>{t('payment.package')}</span><strong>{booking.package_name}</strong></div>
+            <div className="payment-row"><span>{t('payment.event_dates')}</span><strong>{booking.event_start_date} to {booking.event_end_date}</strong></div>
+            <div className="payment-row"><span>{t('payment.venue')}</span><strong>{booking.event_address}</strong></div>
+            <div className="payment-row"><span>{t('payment.contact')}</span><strong>{booking.phone_number}</strong></div>
             <hr />
-            <div className="payment-row payment-total"><span>Total Amount</span><strong>{formatPrice(booking.amount)}</strong></div>
+            <div className="payment-row payment-total"><span>{t('payment.total')}</span><strong>{formatPrice(booking.amount)}</strong></div>
           </div>
 
           <div className="payment-action">
             {paymentSuccess && (
-              <p className="payment-success">Payment successful! Redirecting to My Bookings...</p>
+              <p className="payment-success">{t('payment.success')}</p>
             )}
             {!paymentSuccess && error && <p className="payment-error">{error}</p>}
             {alreadyPaid ? (
               <>
-                <p className="payment-completed">Payment completed for this booking.</p>
+                <p className="payment-completed">{t('payment.already_paid')}</p>
                 <div className="payment-links">
-                  <Link to="/my-bookings" className="btn-hero-outline">View My Bookings</Link>
-                  <Link to="/packages" className="btn-secondary">Browse More Packages</Link>
+                  <Link to="/my-bookings" className="btn-hero-outline">{t('payment.view_bookings')}</Link>
+                  <Link to="/packages" className="btn-secondary">{t('payment.browse_more')}</Link>
                 </div>
               </>
             ) : (
@@ -151,14 +153,12 @@ export default function PaymentPage() {
                   onClick={handlePayNow}
                   disabled={paying}
                 >
-                  {paying ? 'Opening...' : 'Pay Now'}
+                  {paying ? t('payment.opening') : t('payment.pay_now')}
                 </button>
-                <p className="payment-note">
-                  Pay securely via UPI, debit/credit card, or netbanking. You will be redirected to complete payment.
-                </p>
+                <p className="payment-note">{t('payment.payment_note')}</p>
                 <div className="payment-links">
-                  <Link to="/my-bookings" className="btn-hero-outline">View My Bookings</Link>
-                  <Link to="/packages" className="btn-secondary">Browse More Packages</Link>
+                  <Link to="/my-bookings" className="btn-hero-outline">{t('payment.view_bookings')}</Link>
+                  <Link to="/packages" className="btn-secondary">{t('payment.browse_more')}</Link>
                 </div>
               </>
             )}

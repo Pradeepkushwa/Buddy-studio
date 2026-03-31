@@ -3,21 +3,13 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import api from '../api';
-
-const TYPE_LABELS = {
-  photography_camera: 'Photography Camera',
-  videography_camera: 'Videography Camera',
-  drone: 'Drone',
-  lighting: 'Lighting',
-  album: 'Album',
-  video: 'Video',
-  other: 'Other'
-};
+import { useTranslation } from 'react-i18next';
 
 export default function PackageDetail() {
   const { id } = useParams();
   const { token, user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [pkg, setPkg] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,14 +31,14 @@ export default function PackageDetail() {
     navigate(`/book/${id}`);
   };
 
-  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">Loading...</p></div>;
-  if (!pkg) return <div className="home-page"><Navbar /><p className="empty-state">Package not found. <Link to="/packages">Browse packages</Link></p></div>;
+  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">{t('common.loading')}</p></div>;
+  if (!pkg) return <div className="home-page"><Navbar /><p className="empty-state">{t('package_detail.not_found')} <Link to="/packages">{t('package_detail.browse')}</Link></p></div>;
 
   return (
     <div className="home-page">
       <Navbar />
       <div className="page-header">
-        <Link to="/packages" className="back-link">&larr; Back to Packages</Link>
+        <Link to="/packages" className="back-link">&larr; {t('package_detail.back')}</Link>
         <h1>{pkg.name}</h1>
         <span className="package-category">{pkg.category_name}</span>
       </div>
@@ -56,11 +48,11 @@ export default function PackageDetail() {
           <div className="detail-main">
             <p className="detail-description">{pkg.description}</p>
 
-            <h3 className="detail-subtitle">What's Included</h3>
+            <h3 className="detail-subtitle">{t('package_detail.whats_included')}</h3>
             <div className="items-list">
               {pkg.items.map(item => (
                 <div key={item.id} className="item-row">
-                  <span className="item-type-badge">{TYPE_LABELS[item.equipment_type] || item.equipment_type}</span>
+                  <span className="item-type-badge">{t(`package_detail.equipment_types.${item.equipment_type}`, { defaultValue: item.equipment_type })}</span>
                   <div className="item-info">
                     <strong>{item.quantity}x</strong> {item.equipment_name}
                     {item.notes && <span className="item-notes">{item.notes}</span>}
@@ -81,8 +73,8 @@ export default function PackageDetail() {
                 )}
                 <span className="offer-price-lg">{formatPrice(pkg.offer_price)}</span>
               </div>
-              <button className="btn-primary" onClick={handleBookNow}>Book Now</button>
-              <p className="price-note">Secure your event dates today</p>
+              <button className="btn-primary" onClick={handleBookNow}>{t('common.book_now')}</button>
+              <p className="price-note">{t('package_detail.secure_dates')}</p>
             </div>
           </div>
         </div>
