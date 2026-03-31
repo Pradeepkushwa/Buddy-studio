@@ -20,6 +20,79 @@ class BookingsController < ApplicationController
     render json: { bookings: bookings.map { |b| booking_json(b) } }
   end
 
+  def create_order
+    booking = current_user.bookings.find_by(id: params[:id])
+    unless booking
+      render json: { error: 'Booking not found' }, status: :not_found
+      return
+    end
+    if booking.payment_id.present?
+      render json: { error: 'Payment already completed', booking: booking_json(booking) }, status: :unprocessable_entity
+      return
+    end
+    unless booking.status == 'pending'
+      render json: { error: 'Booking is not pending payment' }, status: :unprocessable_entity
+      return
+    end
+    key_id = ENV['RAZORPAY_KEY_ID']
+    key_secret = ENV['RAZORPAY_KEY_SECRET']
+    if key_id.blank? || key_secret.blank?
+      render json: { error: 'Payment gateway not configured' }, status: :service_unavailable
+      return
+    end
+    Razorpay.setup(key_id, key_secret)
+    amount_paise = (booking.amount.to_f * 100).to_i
+    order = Razorpay::Order.create(
+      amount: amount_paise,
+      currency: 'INR',
+      receipt: "booking_#{booking.id}"
+    )
+    booking.update!(razorpay_order_id: order.id)
+    render json: {
+      order_id: order.id,
+      key_id: key_id,
+      amount: amount_paise,
+      currency: 'INR'
+    }
+  rescue Razorpay::Error => e
+    render json: { error: "Payment gateway error: #{e.message}" }, status: :unprocessable_entity
+  end
+
+  def verify_payment
+    booking = current_user.bookings.find_by(id: params[:id])
+    unless booking
+      render json: { error: 'Booking not found' }, status: :not_found
+      return
+    end
+    payment_id = params[:razorpay_payment_id]
+    order_id = params[:razorpay_order_id]
+    signature = params[:razorpay_signature]
+    if payment_id.blank? || order_id.blank? || signature.blank?
+      render json: { error: 'Missing payment details' }, status: :unprocessable_entity
+      return
+    end
+    unless booking.razorpay_order_id == order_id
+      render json: { error: 'Order does not match booking' }, status: :unprocessable_entity
+      return
+    end
+    if ENV['RAZORPAY_KEY_SECRET'].blank?
+      render json: { error: 'Payment gateway not configured' }, status: :service_unavailable
+      return
+    end
+    Razorpay.setup(ENV['RAZORPAY_KEY_ID'], ENV['RAZORPAY_KEY_SECRET'])
+    Razorpay::Utility.verify_payment_signature(
+      razorpay_payment_id: payment_id,
+      razorpay_order_id: order_id,
+      razorpay_signature: signature
+    )
+    booking.update!(payment_id: payment_id, status: 'confirmed')
+    render json: { message: 'Payment verified', booking: booking_json(booking) }
+  rescue SecurityError
+    render json: { error: 'Payment verification failed' }, status: :unprocessable_entity
+  rescue Razorpay::Error => e
+    render json: { error: "Payment error: #{e.message}" }, status: :unprocessable_entity
+  end
+
   private
 
   def booking_params
@@ -45,6 +118,7 @@ class BookingsController < ApplicationController
       alternate_contact_number: b.alternate_contact_number,
       notes: b.notes,
       status: b.status,
+      payment_id: b.payment_id,
       created_at: b.created_at
     }
   end

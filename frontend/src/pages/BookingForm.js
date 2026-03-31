@@ -59,7 +59,8 @@ export default function BookingForm() {
       const res = await api.post('/bookings', { booking: { ...form, package_id: id } });
       navigate(`/bookings/${res.data.booking.id}/payment`);
     } catch (err) {
-      setError(err.response?.data?.errors?.join(', ') || 'Something went wrong');
+      const msg = err.response?.data?.error || (Array.isArray(err.response?.data?.errors) ? err.response?.data?.errors.join(', ') : null) || (err.response?.status === 401 ? 'Please log in again.' : err.response?.status === 403 ? 'Account pending approval.' : 'Something went wrong. Please try again.');
+      setError(msg);
     } finally {
       setSubmitting(false);
     }

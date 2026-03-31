@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_21_194434) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_01_120000) do
   create_table "appointments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -36,7 +36,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_21_194434) do
     t.date "event_start_date", null: false
     t.text "notes"
     t.integer "package_id", null: false
+    t.string "payment_id"
     t.string "phone_number", null: false
+    t.string "razorpay_order_id"
     t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
