@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   # Authenticated customer
   post 'bookings', to: 'bookings#create'
   get  'bookings/mine', to: 'bookings#mine'
+  post 'bookings/:id/create_order', to: 'bookings#create_order'
+  post 'bookings/:id/verify_payment', to: 'bookings#verify_payment'
 
   # Staff
   namespace :staff do
