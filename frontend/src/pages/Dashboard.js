@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
+import { useTranslation } from 'react-i18next';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -16,6 +17,7 @@ const STATUS_COLORS = {
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
 
@@ -45,8 +47,8 @@ export default function Dashboard() {
         <div className="header-right">
           <span className="user-badge">{user?.role}</span>
           <span className="user-name">{user?.name}</span>
-          <button className="btn-secondary btn-sm" onClick={() => navigate('/')}>Home</button>
-          <button className="btn-secondary btn-sm" onClick={handleLogout}>Logout</button>
+          <button className="btn-secondary btn-sm" onClick={() => navigate('/')}>{t('dashboard.home')}</button>
+          <button className="btn-secondary btn-sm" onClick={handleLogout}>{t('common.logout')}</button>
         </div>
       </header>
 
@@ -61,50 +63,50 @@ export default function Dashboard() {
               )}
             </div>
             <div>
-              <h1>Welcome back, {user?.name?.split(' ')[0] || 'User'}!</h1>
+              <h1>{t('dashboard.welcome', { name: user?.name?.split(' ')[0] || 'User' })}</h1>
               <p className="dashboard-subtitle">{user?.email}</p>
             </div>
           </div>
-          <button className="btn-primary btn-sm" onClick={() => navigate('/profile')}>Edit Profile</button>
+          <button className="btn-primary btn-sm" onClick={() => navigate('/profile')}>{t('dashboard.edit_profile')}</button>
         </div>
 
         {user?.role === 'user' && (
           <div className="dashboard-stats-row">
             <div className="dashboard-stat-card">
               <div className="dashboard-stat-number">{bookings.length}</div>
-              <div className="dashboard-stat-label">Total Bookings</div>
+              <div className="dashboard-stat-label">{t('dashboard.total_bookings')}</div>
             </div>
             <div className="dashboard-stat-card stat-pending">
               <div className="dashboard-stat-number">{pendingBookings.length}</div>
-              <div className="dashboard-stat-label">Active</div>
+              <div className="dashboard-stat-label">{t('dashboard.active')}</div>
             </div>
             <div className="dashboard-stat-card stat-completed">
               <div className="dashboard-stat-number">{completedCount}</div>
-              <div className="dashboard-stat-label">Completed</div>
+              <div className="dashboard-stat-label">{t('dashboard.completed')}</div>
             </div>
           </div>
         )}
 
         {user?.role === 'admin' && (
           <div className="dashboard-quick-actions">
-            <h3>Quick Actions</h3>
+            <h3>{t('dashboard.quick_actions')}</h3>
             <div className="quick-actions-grid">
-              <button className="quick-action-card" onClick={() => navigate('/admin/dashboard')}>Admin Dashboard</button>
-              <button className="quick-action-card" onClick={() => navigate('/admin/bookings')}>Manage Bookings</button>
-              <button className="quick-action-card" onClick={() => navigate('/admin/packages')}>Manage Packages</button>
-              <button className="quick-action-card" onClick={() => navigate('/admin/staff')}>Manage Staff</button>
-              <button className="quick-action-card" onClick={() => navigate('/profile')}>My Profile</button>
+              <button className="quick-action-card" onClick={() => navigate('/admin/dashboard')}>{t('dashboard.admin_dashboard')}</button>
+              <button className="quick-action-card" onClick={() => navigate('/admin/bookings')}>{t('dashboard.manage_bookings')}</button>
+              <button className="quick-action-card" onClick={() => navigate('/admin/packages')}>{t('dashboard.manage_packages')}</button>
+              <button className="quick-action-card" onClick={() => navigate('/admin/staff')}>{t('dashboard.manage_staff')}</button>
+              <button className="quick-action-card" onClick={() => navigate('/profile')}>{t('dashboard.my_profile')}</button>
             </div>
           </div>
         )}
 
         {user?.role === 'staff' && (
           <div className="dashboard-quick-actions">
-            <h3>Quick Actions</h3>
+            <h3>{t('dashboard.quick_actions')}</h3>
             <div className="quick-actions-grid">
-              <button className="quick-action-card" onClick={() => navigate('/staff/equipment')}>Equipment</button>
-              <button className="quick-action-card" onClick={() => navigate('/staff/packages')}>My Packages</button>
-              <button className="quick-action-card" onClick={() => navigate('/profile')}>My Profile</button>
+              <button className="quick-action-card" onClick={() => navigate('/staff/equipment')}>{t('dashboard.equipment')}</button>
+              <button className="quick-action-card" onClick={() => navigate('/staff/packages')}>{t('dashboard.my_packages')}</button>
+              <button className="quick-action-card" onClick={() => navigate('/profile')}>{t('dashboard.my_profile')}</button>
             </div>
           </div>
         )}
@@ -113,7 +115,7 @@ export default function Dashboard() {
           <>
             {pendingBookings.length > 0 && (
               <div className="dashboard-bookings-section">
-                <h3>Active Bookings ({pendingBookings.length})</h3>
+                <h3>{t('dashboard.active_bookings', { count: pendingBookings.length })}</h3>
                 <div className="dashboard-bookings-list">
                   {pendingBookings.map(b => (
                     <div key={b.id} className="dashboard-booking-card">
@@ -135,15 +137,15 @@ export default function Dashboard() {
 
             <div className="dashboard-bookings-section">
               <div className="dashboard-section-header">
-                <h3>Recent Bookings</h3>
-                <Link to="/my-bookings" className="btn-secondary btn-sm">View All</Link>
+                <h3>{t('dashboard.recent_bookings')}</h3>
+                <Link to="/my-bookings" className="btn-secondary btn-sm">{t('dashboard.view_all')}</Link>
               </div>
               {loadingBookings ? (
-                <p className="empty-state">Loading...</p>
+                <p className="empty-state">{t('common.loading')}</p>
               ) : recentBookings.length === 0 ? (
                 <div className="empty-state">
-                  <p>No bookings yet.</p>
-                  <Link to="/packages" className="btn-primary" style={{ display: 'inline-block', maxWidth: 200, marginTop: 12 }}>Browse Packages</Link>
+                  <p>{t('dashboard.no_bookings')}</p>
+                  <Link to="/packages" className="btn-primary" style={{ display: 'inline-block', maxWidth: 200, marginTop: 12 }}>{t('dashboard.browse_packages')}</Link>
                 </div>
               ) : (
                 <div className="dashboard-bookings-list">
@@ -160,7 +162,7 @@ export default function Dashboard() {
                         <strong>{formatPrice(b.amount)}</strong>
                       </div>
                       <div className="dashboard-booking-venue">{b.event_address}</div>
-                      <div className="dashboard-booking-date">Booked on {new Date(b.created_at).toLocaleDateString()}</div>
+                      <div className="dashboard-booking-date">{t('dashboard.booked_on')} {new Date(b.created_at).toLocaleDateString()}</div>
                     </div>
                   ))}
                 </div>
@@ -168,12 +170,12 @@ export default function Dashboard() {
             </div>
 
             <div className="dashboard-quick-actions">
-              <h3>Quick Actions</h3>
+              <h3>{t('dashboard.quick_actions')}</h3>
               <div className="quick-actions-grid">
-                <button className="quick-action-card" onClick={() => navigate('/packages')}>Browse Packages</button>
-                <button className="quick-action-card" onClick={() => navigate('/my-bookings')}>All My Bookings</button>
-                <button className="quick-action-card" onClick={() => navigate('/gallery')}>View Gallery</button>
-                <button className="quick-action-card" onClick={() => navigate('/profile')}>My Profile</button>
+                <button className="quick-action-card" onClick={() => navigate('/packages')}>{t('dashboard.browse_packages')}</button>
+                <button className="quick-action-card" onClick={() => navigate('/my-bookings')}>{t('dashboard.all_my_bookings')}</button>
+                <button className="quick-action-card" onClick={() => navigate('/gallery')}>{t('dashboard.view_gallery')}</button>
+                <button className="quick-action-card" onClick={() => navigate('/profile')}>{t('dashboard.my_profile')}</button>
               </div>
             </div>
           </>

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect');
   const [form, setForm] = useState({ email: '', password: '' });
@@ -42,24 +44,24 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-logo">BuddyStudio</div>
-        <h2>Welcome Back</h2>
+        <div className="auth-logo">{t('auth.brand')}</div>
+        <h2>{t('auth.login_title')}</h2>
         {error && <div className="auth-error">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required placeholder="you@email.com" />
+            <label htmlFor="email">{t('auth.email')}</label>
+            <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required placeholder={t('auth.email_placeholder')} />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" value={form.password} onChange={handleChange} required placeholder="Your password" />
+            <label htmlFor="password">{t('auth.password')}</label>
+            <input id="password" name="password" type="password" value={form.password} onChange={handleChange} required placeholder={t('auth.password_placeholder')} />
           </div>
           <button type="submit" className="btn-primary" disabled={submitting}>
-            {submitting ? 'Logging in...' : 'Log In'}
+            {submitting ? t('auth.logging_in') : t('auth.log_in')}
           </button>
         </form>
-        <p className="auth-link forgot-link"><Link to="/forgot-password">Forgot Password?</Link></p>
-        <p className="auth-link">Don't have an account? <Link to="/signup">Sign up</Link></p>
+        <p className="auth-link forgot-link"><Link to="/forgot-password">{t('auth.forgot_password')}</Link></p>
+        <p className="auth-link">{t('auth.no_account')} <Link to="/signup">{t('auth.signup_link')}</Link></p>
       </div>
     </div>
   );

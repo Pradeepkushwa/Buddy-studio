@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { useTranslation } from 'react-i18next';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 export default function ProfilePage() {
   const { updateUser } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const fileRef = useRef();
 
   const [profile, setProfile] = useState(null);
@@ -27,7 +29,6 @@ export default function ProfilePage() {
   const [emailSaving, setEmailSaving] = useState(false);
 
   const [uploading, setUploading] = useState(false);
-
   useEffect(() => {
     api.get('/profile')
       .then(r => {
@@ -107,12 +108,12 @@ export default function ProfilePage() {
 
   const avatarSrc = profile?.avatar_url ? `${API_BASE}${profile.avatar_url}` : null;
 
-  if (loading) return <div className="profile-page"><p className="empty-state">Loading...</p></div>;
+  if (loading) return <div className="profile-page"><p className="empty-state">{t('common.loading')}</p></div>;
 
   return (
     <div className="profile-page">
       <div className="profile-page-header">
-        <h1>My Profile</h1>
+        <h1>{t('profile.title')}</h1>
       </div>
 
       {msg && <div className="auth-success">{msg}</div>}
@@ -142,10 +143,10 @@ export default function ProfilePage() {
 
         <div className="profile-page-card profile-details-card">
           <div className="profile-card-header">
-            <h3>Personal Details</h3>
+            <h3>{t('profile.personal_details')}</h3>
             {!editMode && (
               <button className="btn-secondary btn-sm" onClick={() => { setEditMode(true); setMsg(''); setErr(''); }}>
-                Edit
+                {t('profile.edit')}
               </button>
             )}
           </div>
@@ -153,43 +154,43 @@ export default function ProfilePage() {
           {editMode ? (
             <form onSubmit={handleSave}>
               <div className="form-group">
-                <label>Full Name</label>
+                <label>{t('profile.full_name')}</label>
                 <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Your name" />
               </div>
               <div className="form-group">
-                <label>Mobile Number</label>
+                <label>{t('profile.mobile_number')}</label>
                 <input value={form.mobile_number} onChange={e => setForm({ ...form, mobile_number: e.target.value })} placeholder="+91 9876543210" />
               </div>
               <div className="profile-edit-actions">
                 <button type="submit" className="btn-primary btn-sm" disabled={saving}>
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? t('profile.saving') : t('profile.save')}
                 </button>
                 <button type="button" className="btn-secondary btn-sm" onClick={() => {
                   setEditMode(false);
                   setForm({ name: profile?.name || '', mobile_number: profile?.mobile_number || '' });
-                }}>Cancel</button>
+                }}>{t('profile.cancel')}</button>
               </div>
             </form>
           ) : (
             <div className="profile-info-list">
               <div className="profile-info-row">
-                <span className="profile-info-label">Name</span>
+                <span className="profile-info-label">{t('profile.name')}</span>
                 <span className="profile-info-value">{profile?.name || '—'}</span>
               </div>
               <div className="profile-info-row">
-                <span className="profile-info-label">Email</span>
+                <span className="profile-info-label">{t('profile.email')}</span>
                 <span className="profile-info-value">{profile?.email}</span>
               </div>
               <div className="profile-info-row">
-                <span className="profile-info-label">Mobile</span>
+                <span className="profile-info-label">{t('profile.mobile')}</span>
                 <span className="profile-info-value">{profile?.mobile_number || '—'}</span>
               </div>
               <div className="profile-info-row">
-                <span className="profile-info-label">Role</span>
+                <span className="profile-info-label">{t('profile.role')}</span>
                 <span className="profile-info-value" style={{ textTransform: 'capitalize' }}>{profile?.role}</span>
               </div>
               <div className="profile-info-row">
-                <span className="profile-info-label">Member Since</span>
+                <span className="profile-info-label">{t('profile.member_since')}</span>
                 <span className="profile-info-value">{new Date().toLocaleDateString()}</span>
               </div>
             </div>
@@ -198,10 +199,10 @@ export default function ProfilePage() {
 
         <div className="profile-page-card">
           <div className="profile-card-header">
-            <h3>Email Settings</h3>
+            <h3>{t('profile.email_settings')}</h3>
             {!emailMode && (
               <button className="btn-secondary btn-sm" onClick={() => { setEmailMode(true); setEmailMsg(''); setEmailErr(''); }}>
-                Change Email
+                {t('profile.change_email')}
               </button>
             )}
           </div>
@@ -212,48 +213,48 @@ export default function ProfilePage() {
           {emailMode ? (
             emailStep === 1 ? (
               <form onSubmit={handleEmailChangeRequest}>
-                <p className="profile-email-note">A verification code will be sent to your new email address.</p>
+                <p className="profile-email-note">{t('profile.email_code_note')}</p>
                 <div className="form-group">
-                  <label>New Email Address</label>
+                  <label>{t('profile.new_email')}</label>
                   <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} required placeholder="new@email.com" />
                 </div>
                 <div className="profile-edit-actions">
                   <button type="submit" className="btn-primary btn-sm" disabled={emailSaving}>
-                    {emailSaving ? 'Sending...' : 'Send Code'}
+                    {emailSaving ? t('profile.sending') : t('profile.send_code')}
                   </button>
                   <button type="button" className="btn-secondary btn-sm" onClick={() => { setEmailMode(false); setNewEmail(''); }}>
-                    Cancel
+                    {t('profile.cancel')}
                   </button>
                 </div>
               </form>
             ) : (
               <form onSubmit={handleEmailChangeVerify}>
-                <p className="profile-email-note">Enter the 6-digit code sent to <strong>{newEmail}</strong></p>
+                <p className="profile-email-note">{t('profile.enter_code_note')} <strong>{newEmail}</strong></p>
                 <div className="form-group">
-                  <label>Verification Code</label>
+                  <label>{t('profile.verification_code')}</label>
                   <input type="text" value={emailOtp} onChange={e => setEmailOtp(e.target.value)}
-                    required placeholder="Enter 6-digit code" maxLength={6} className="otp-input" />
+                    required placeholder={t('profile.enter_code_placeholder')} maxLength={6} className="otp-input" />
                 </div>
                 <div className="profile-edit-actions">
                   <button type="submit" className="btn-primary btn-sm" disabled={emailSaving}>
-                    {emailSaving ? 'Verifying...' : 'Verify & Update'}
+                    {emailSaving ? 'Verifying...' : t('profile.verify_update')}
                   </button>
                   <button type="button" className="btn-secondary btn-sm" onClick={() => {
                     setEmailMode(false); setEmailStep(1); setNewEmail(''); setEmailOtp('');
-                  }}>Cancel</button>
+                  }}>{t('profile.cancel')}</button>
                 </div>
               </form>
             )
           ) : (
             <div className="profile-info-list">
               <div className="profile-info-row">
-                <span className="profile-info-label">Current Email</span>
+                <span className="profile-info-label">{t('profile.current_email')}</span>
                 <span className="profile-info-value">{profile?.email}</span>
               </div>
               <div className="profile-info-row">
-                <span className="profile-info-label">Verified</span>
+                <span className="profile-info-label">{t('profile.verified')}</span>
                 <span className="profile-info-value">
-                  {profile?.email_verified ? <span className="status-approved">Yes</span> : <span className="status-pending">No</span>}
+                  {profile?.email_verified ? <span className="status-approved">{t('profile.yes')}</span> : <span className="status-pending">{t('profile.no')}</span>}
                 </span>
               </div>
             </div>
@@ -261,19 +262,19 @@ export default function ProfilePage() {
         </div>
 
         <div className="profile-page-card">
-          <h3>Quick Actions</h3>
+          <h3>{t('profile.quick_actions')}</h3>
           <div className="profile-quick-actions">
             {profile?.role === 'admin' && (
-              <button className="quick-action-card" onClick={() => navigate('/admin/dashboard')}>Admin Dashboard</button>
+              <button className="quick-action-card" onClick={() => navigate('/admin/dashboard')}>{t('dashboard.admin_dashboard')}</button>
             )}
             {profile?.role === 'staff' && (
               <>
-                <button className="quick-action-card" onClick={() => navigate('/staff/equipment')}>Equipment</button>
-                <button className="quick-action-card" onClick={() => navigate('/staff/packages')}>My Packages</button>
+                <button className="quick-action-card" onClick={() => navigate('/staff/equipment')}>{t('dashboard.equipment')}</button>
+                <button className="quick-action-card" onClick={() => navigate('/staff/packages')}>{t('dashboard.my_packages')}</button>
               </>
             )}
-            <button className="quick-action-card" onClick={() => navigate('/packages')}>Browse Packages</button>
-            <button className="quick-action-card" onClick={() => navigate('/forgot-password')}>Change Password</button>
+            <button className="quick-action-card" onClick={() => navigate('/packages')}>{t('profile.browse_packages')}</button>
+            <button className="quick-action-card" onClick={() => navigate('/forgot-password')}>{t('profile.change_password')}</button>
           </div>
         </div>
       </div>

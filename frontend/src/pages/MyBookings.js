@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../api';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_COLORS = {
   pending: '#f59e0b',
@@ -12,6 +13,7 @@ const STATUS_COLORS = {
 };
 
 export default function MyBookings() {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,21 +26,21 @@ export default function MyBookings() {
 
   const formatPrice = (p) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(p);
 
-  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">Loading...</p></div>;
+  if (loading) return <div className="home-page"><Navbar /><p className="empty-state">{t('common.loading')}</p></div>;
 
   return (
     <div className="home-page">
       <Navbar />
       <div className="page-header">
-        <h1>My Bookings</h1>
-        <p className="section-subtitle">Track the status of your event bookings</p>
+        <h1>{t('my_bookings.title')}</h1>
+        <p className="section-subtitle">{t('my_bookings.subtitle')}</p>
       </div>
 
       <section className="section">
         {bookings.length === 0 ? (
           <div className="empty-state">
-            <p>No bookings yet.</p>
-            <Link to="/packages" className="btn-primary" style={{ display: 'inline-block', marginTop: 16 }}>Browse Packages</Link>
+            <p>{t('my_bookings.no_bookings')}</p>
+            <Link to="/packages" className="btn-primary" style={{ display: 'inline-block', marginTop: 16 }}>{t('common.browse_packages')}</Link>
           </div>
         ) : (
           <div className="bookings-list">
@@ -51,14 +53,14 @@ export default function MyBookings() {
                   </span>
                 </div>
                 <div className="booking-card-details">
-                  <div className="booking-detail-row"><span>Event Dates:</span> {b.event_start_date} to {b.event_end_date}</div>
-                  <div className="booking-detail-row"><span>Venue:</span> {b.event_address}</div>
-                  <div className="booking-detail-row"><span>Contact:</span> {b.phone_number}</div>
-                  <div className="booking-detail-row"><span>Amount:</span> <strong>{formatPrice(b.amount)}</strong></div>
-                  {b.notes && <div className="booking-detail-row"><span>Notes:</span> {b.notes}</div>}
+                  <div className="booking-detail-row"><span>{t('my_bookings.event_dates')}</span> {b.event_start_date} to {b.event_end_date}</div>
+                  <div className="booking-detail-row"><span>{t('my_bookings.venue')}</span> {b.event_address}</div>
+                  <div className="booking-detail-row"><span>{t('my_bookings.contact')}</span> {b.phone_number}</div>
+                  <div className="booking-detail-row"><span>{t('my_bookings.amount')}</span> <strong>{formatPrice(b.amount)}</strong></div>
+                  {b.notes && <div className="booking-detail-row"><span>{t('my_bookings.notes')}</span> {b.notes}</div>}
                 </div>
                 <div className="booking-card-footer">
-                  <span className="booking-date">Booked on {new Date(b.created_at).toLocaleDateString()}</span>
+                  <span className="booking-date">{t('my_bookings.booked_on')} {new Date(b.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             ))}

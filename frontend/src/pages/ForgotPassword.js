@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
+import { useTranslation } from 'react-i18next';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -21,7 +23,7 @@ export default function ForgotPassword() {
       setMessage(res.data.message);
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.error || 'Something went wrong');
+      setError(err.response?.data?.error || t('common.something_went_wrong'));
     } finally { setSubmitting(false); }
   };
 
@@ -40,8 +42,8 @@ export default function ForgotPassword() {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError(''); setMessage('');
-    if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
-    if (password !== passwordConfirmation) { setError('Passwords do not match'); return; }
+    if (password.length < 6) { setError(t('auth.password_min_error')); return; }
+    if (password !== passwordConfirmation) { setError(t('auth.passwords_no_match')); return; }
     setSubmitting(true);
     try {
       const res = await api.post('/password/reset', {
@@ -50,7 +52,7 @@ export default function ForgotPassword() {
       setMessage(res.data.message);
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || err.response?.data?.errors?.join(', ') || 'Something went wrong');
+      setError(err.response?.data?.error || err.response?.data?.errors?.join(', ') || t('common.something_went_wrong'));
     } finally { setSubmitting(false); }
   };
 
@@ -64,23 +66,25 @@ export default function ForgotPassword() {
     } finally { setSubmitting(false); }
   };
 
+  const stepTitle = step === 1 ? t('auth.forgot_title_step1') : step === 2 ? t('auth.forgot_title_step2') : t('auth.forgot_title_step3');
+
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-logo">BuddyStudio</div>
-        <h2>{step === 1 ? 'Forgot Password' : step === 2 ? 'Verify Code' : 'New Password'}</h2>
+        <div className="auth-logo">{t('auth.brand')}</div>
+        <h2>{stepTitle}</h2>
         <p className="auth-step-desc">
-          {step === 1 && 'Enter your email and we\'ll send you a reset code.'}
-          {step === 2 && `We've sent a 6-digit code to ${email}`}
-          {step === 3 && 'Create your new password.'}
+          {step === 1 && t('auth.forgot_desc1')}
+          {step === 2 && `${t('auth.sent_code_to')} ${email}`}
+          {step === 3 && t('auth.forgot_desc3')}
         </p>
 
         <div className="forgot-steps">
-          <div className={`forgot-step ${step >= 1 ? 'active' : ''}`}><span>1</span> Email</div>
+          <div className={`forgot-step ${step >= 1 ? 'active' : ''}`}><span>1</span> {t('auth.forgot_step_email')}</div>
           <div className="forgot-step-line" />
-          <div className={`forgot-step ${step >= 2 ? 'active' : ''}`}><span>2</span> Verify</div>
+          <div className={`forgot-step ${step >= 2 ? 'active' : ''}`}><span>2</span> {t('auth.forgot_step_verify')}</div>
           <div className="forgot-step-line" />
-          <div className={`forgot-step ${step >= 3 ? 'active' : ''}`}><span>3</span> Reset</div>
+          <div className={`forgot-step ${step >= 3 ? 'active' : ''}`}><span>3</span> {t('auth.forgot_step_reset')}</div>
         </div>
 
         {message && <div className="auth-success">{message}</div>}
@@ -89,12 +93,12 @@ export default function ForgotPassword() {
         {step === 1 && (
           <form onSubmit={handleSendOtp}>
             <div className="form-group">
-              <label htmlFor="reset-email">Email Address</label>
+              <label htmlFor="reset-email">{t('auth.email_address')}</label>
               <input id="reset-email" type="email" value={email} onChange={e => setEmail(e.target.value)}
-                required placeholder="you@email.com" />
+                required placeholder={t('auth.email_placeholder')} />
             </div>
             <button type="submit" className="btn-primary" disabled={submitting}>
-              {submitting ? 'Sending...' : 'Send Reset Code'}
+              {submitting ? t('auth.sending') : t('auth.send_reset_code')}
             </button>
           </form>
         )}
@@ -102,15 +106,15 @@ export default function ForgotPassword() {
         {step === 2 && (
           <form onSubmit={handleVerifyOtp}>
             <div className="form-group">
-              <label htmlFor="reset-otp">6-Digit Code</label>
+              <label htmlFor="reset-otp">{t('auth.six_digit_code')}</label>
               <input id="reset-otp" type="text" value={otpCode} onChange={e => setOtpCode(e.target.value)}
-                required placeholder="Enter code" maxLength={6} className="otp-input" />
+                required placeholder={t('auth.enter_code')} maxLength={6} className="otp-input" />
             </div>
             <button type="submit" className="btn-primary" disabled={submitting}>
-              {submitting ? 'Verifying...' : 'Verify Code'}
+              {submitting ? t('auth.verifying') : t('auth.verify_code')}
             </button>
             <button type="button" className="btn-link" onClick={handleResendOtp} disabled={submitting}>
-              Resend Code
+              {t('auth.resend_code')}
             </button>
           </form>
         )}
@@ -118,24 +122,24 @@ export default function ForgotPassword() {
         {step === 3 && (
           <form onSubmit={handleResetPassword}>
             <div className="form-group">
-              <label htmlFor="new-password">New Password</label>
+              <label htmlFor="new-password">{t('auth.new_password')}</label>
               <input id="new-password" type="password" value={password} onChange={e => setPassword(e.target.value)}
-                required placeholder="Min 6 characters" minLength={6} />
+                required placeholder={t('auth.min_6_chars')} minLength={6} />
             </div>
             <div className="form-group">
-              <label htmlFor="confirm-password">Confirm Password</label>
+              <label htmlFor="confirm-password">{t('auth.confirm_password_label')}</label>
               <input id="confirm-password" type="password" value={passwordConfirmation}
                 onChange={e => setPasswordConfirmation(e.target.value)}
-                required placeholder="Re-enter password" minLength={6} />
+                required placeholder={t('auth.re_enter_password')} minLength={6} />
             </div>
             <button type="submit" className="btn-primary" disabled={submitting}>
-              {submitting ? 'Updating...' : 'Reset Password'}
+              {submitting ? t('auth.updating') : t('auth.reset_password')}
             </button>
           </form>
         )}
 
         <p className="auth-link">
-          <Link to="/login">Back to Login</Link>
+          <Link to="/login">{t('auth.back_to_login')}</Link>
         </p>
       </div>
     </div>
