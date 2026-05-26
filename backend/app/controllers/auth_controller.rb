@@ -107,7 +107,7 @@ class AuthController < ApplicationController
 
   # GET /auth/me (requires Authorization header)
   def me
-    authenticate_user!
+    return render json: { error: 'Unauthorized' }, status: :unauthorized unless current_user
     render json: { user: user_response(current_user) }, status: :ok
   end
 
