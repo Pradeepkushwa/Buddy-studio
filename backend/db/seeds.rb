@@ -12,7 +12,13 @@ if admin.new_record?
   admin.save!
   puts "Created admin: #{admin.email}"
 else
-  puts "Admin already exists: #{admin.email}"
+  # Always ensure the admin user has admin role and is active
+  admin.update_columns(
+    role: 'admin',
+    verification_status: 'approved',
+    email_verified: true
+  )
+  puts "Updated admin: #{admin.email} (role enforced to admin)"
 end
 
 # Seed categories

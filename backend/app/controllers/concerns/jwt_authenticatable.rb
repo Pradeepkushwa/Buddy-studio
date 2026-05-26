@@ -3,22 +3,28 @@
 module JwtAuthenticatable
   extend ActiveSupport::Concern
 
-  SECRET = Rails.application.credentials.secret_key_base
   ALG = 'HS256'
+
+  def self.jwt_secret
+    ENV['SECRET_KEY_BASE'] || Rails.application.credentials.secret_key_base
+  end
 
   class_methods do
     def decode_token(token)
       return nil if token.blank?
-      payload = JWT.decode(token, SECRET, true, { algorithm: ALG })
+      secret = ENV['SECRET_KEY_BASE'] || Rails.application.credentials.secret_key_base
+      return nil if secret.blank?
+      payload = JWT.decode(token, secret, true, { algorithm: ALG })
       payload[0].with_indifferent_access
-    rescue JWT::DecodeError
+    rescue JWT::DecodeError, ArgumentError, StandardError
       nil
     end
   end
 
   def encode_token(user_id, exp: 24.hours.from_now)
+    secret = ENV['SECRET_KEY_BASE'] || Rails.application.credentials.secret_key_base
     payload = { sub: user_id, exp: exp.to_i }
-    JWT.encode(payload, SECRET, ALG)
+    JWT.encode(payload, secret, ALG)
   end
 
   def current_user
@@ -33,7 +39,8 @@ module JwtAuthenticatable
   end
 
   def authenticate_admin!
-    render json: { error: 'Forbidden' }, status: :forbidden unless current_user&.admin?
+    return render json: { error: 'Unauthorized' }, status: :unauthorized unless current_user
+    render json: { error: 'Forbidden' }, status: :forbidden unless current_user.admin?
   end
 
   def authenticate_staff_or_admin!
