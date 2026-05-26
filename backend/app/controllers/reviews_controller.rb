@@ -15,6 +15,7 @@ class ReviewsController < ApplicationController
   def create
     review = Review.new(review_params)
     if review.save
+      Notification.create_for_new_review(review)
       render json: { message: 'Thank you for your feedback! It will be visible after approval.' }, status: :created
     else
       render json: { errors: review.errors.full_messages }, status: :unprocessable_entity

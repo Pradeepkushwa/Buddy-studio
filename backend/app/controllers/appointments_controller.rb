@@ -4,6 +4,7 @@ class AppointmentsController < ApplicationController
   def create
     appointment = Appointment.new(appointment_params)
     if appointment.save
+      Notification.create_for_new_appointment(appointment)
       render json: {
         message: 'Appointment request submitted! Our team will contact you soon.',
         appointment: {
