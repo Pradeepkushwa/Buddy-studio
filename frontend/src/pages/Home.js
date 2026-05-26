@@ -268,6 +268,50 @@ export default function Home() {
       <footer className="site-footer">
         <p>{t('home.footer')}</p>
       </footer>
+
+      {/* Google Maps floating button */}
+      <a
+        href="https://maps.app.goo.gl/Jxa6229ESax9BF7h6"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="map-float-btn"
+        aria-label="Find us on Google Maps"
+      >
+        {/* Google Maps 2020 pin icon */}
+        <svg width="30" height="36" viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg">
+          {/* Pin shadow */}
+          <ellipse cx="20" cy="50" rx="8" ry="3" fill="rgba(0,0,0,0.18)"/>
+          {/* Red segment (top-right) */}
+          <path d="M20 2 C28 2 35 8 35 18 C35 22 33 26 30 30 L20 46 L10 30 C7 26 5 22 5 18 C5 8 12 2 20 2Z" fill="#EA4335"/>
+          {/* Blue segment (top-left) */}
+          <path d="M20 2 C12 2 5 8 5 18 C5 11 12 4 20 2Z" fill="#4285F4"/>
+          {/* Green segment (bottom-left) */}
+          <path d="M5 18 C5 22 7 26 10 30 L20 46 C18 42 8 26 5 18Z" fill="#34A853"/>
+          {/* Yellow segment */}
+          <path d="M20 2 C28 2 35 8 35 18 C35 13 30 5 20 2Z" fill="#FBBC05"/>
+          {/* White circle */}
+          <circle cx="20" cy="18" r="8" fill="white"/>
+          {/* Inner dot */}
+          <circle cx="20" cy="18" r="4" fill="#EA4335"/>
+        </svg>
+        <span className="map-tooltip">Find Our Studio</span>
+      </a>
+
+      {/* Instagram floating button */}
+      <a
+        href="https://www.instagram.com/yourbuddystudio"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ig-float-btn"
+        aria-label="Follow us on Instagram"
+      >
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="ig-icon">
+          <rect x="2" y="2" width="20" height="20" rx="5.5" stroke="white" strokeWidth="1.8"/>
+          <circle cx="12" cy="12" r="4.5" stroke="white" strokeWidth="1.8"/>
+          <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+        </svg>
+        <span className="ig-tooltip">Follow on Instagram</span>
+      </a>
     </div>
   );
 }

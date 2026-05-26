@@ -26,6 +26,7 @@ import AdminBookings from './pages/admin/AdminBookings';
 import AdminAppointments from './pages/admin/AdminAppointments';
 import AdminGallery from './pages/admin/AdminGallery';
 import AdminReviews from './pages/admin/AdminReviews';
+import AdminRevenue from './pages/admin/AdminRevenue';
 import StaffLayout from './pages/staff/StaffLayout';
 import StaffEquipment from './pages/staff/StaffEquipment';
 import StaffPackages from './pages/staff/StaffPackages';
@@ -91,6 +92,7 @@ function App() {
             <Route path="appointments" element={<AdminAppointments />} />
             <Route path="gallery" element={<AdminGallery />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="revenue" element={<AdminRevenue />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
