@@ -13,6 +13,7 @@ module Admin
     def update
       booking = Booking.find(params[:id])
       if booking.update(status: params[:status])
+        Notification.create_for_booking_update(booking)
         render json: { booking: booking_json(booking), message: "Booking #{params[:status]}" }
       else
         render json: { errors: booking.errors.full_messages }, status: :unprocessable_entity

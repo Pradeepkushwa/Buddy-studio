@@ -39,7 +39,10 @@ Rails.application.routes.draw do
 
   # Admin
   namespace :admin do
-    get 'dashboard', to: 'dashboard#index'
+    get  'dashboard', to: 'dashboard#index'
+    get  'notifications', to: 'notifications#index'
+    patch 'notifications/:id/read', to: 'notifications#mark_as_read'
+    patch 'notifications/mark_all_read', to: 'notifications#mark_all_read'
 
     get 'staff', to: 'staff#index'
     patch 'staff/:id/approve', to: 'staff#approve'

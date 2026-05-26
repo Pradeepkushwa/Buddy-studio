@@ -9,6 +9,7 @@ class BookingsController < ApplicationController
     booking.amount = package.offer_price || package.price
 
     if booking.save
+      Notification.create_for_new_booking(booking)
       render json: { booking: booking_json(booking), message: 'Booking created successfully!' }, status: :created
     else
       render json: { errors: booking.errors.full_messages }, status: :unprocessable_entity

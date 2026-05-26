@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_000001) do
   create_table "appointments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -85,6 +85,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_120000) do
     t.index ["category"], name: "index_gallery_items_on_category"
     t.index ["media_type"], name: "index_gallery_items_on_media_type"
     t.index ["uploaded_by_id"], name: "index_gallery_items_on_uploaded_by_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "link"
+    t.text "message"
+    t.string "notification_type", null: false
+    t.boolean "read", default: false, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_notifications_on_created_at"
+    t.index ["read"], name: "index_notifications_on_read"
   end
 
   create_table "package_items", force: :cascade do |t|
