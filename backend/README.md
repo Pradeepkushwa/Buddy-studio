@@ -117,8 +117,8 @@ bin/rails server -p 3001
 
 ## Default Admin (after seed)
 
-- Email: `admin@buddystudio.com`
-- Password: `admin123`
+- Email: `admin_email`
+- Password: `admin_password`
 
 ## Seeded Data
 
