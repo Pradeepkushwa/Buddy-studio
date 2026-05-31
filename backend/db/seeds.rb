@@ -1,11 +1,11 @@
 # Create default admin
-admin = User.find_or_initialize_by(email: 'admin@buddystudio.com')
+admin = User.find_or_initialize_by(email: ENV['ADMIN_EMAIL'])
 if admin.new_record?
   admin.assign_attributes(
     name: 'Admin',
     role: 'admin',
-    password: 'admin123',
-    password_confirmation: 'admin123',
+    password: ENV['ADMIN_PASSWORD'],
+    password_confirmation: ENV['ADMIN_PASSWORD'],
     verification_status: 'approved',
     email_verified: true
   )
