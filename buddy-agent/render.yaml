@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: buddy-agent
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false          # set manually in Render dashboard (secret)
+      - key: GEMINI_MODEL
+        value: gemini-flash-latest
+      - key: SUPPORT_PHONE
+        value: +91-9999999999   # replace with real number
+      - key: SUPPORT_WHATSAPP
+        value: +91-9999999999   # replace with real number
+      - key: ALLOWED_ORIGINS
+        value: https://your-frontend.onrender.com  # replace with real frontend URL
+      - key: MAX_HISTORY_MESSAGES
+        value: "20"
+      - key: ESCALATION_THRESHOLD
+        value: "3"
+      - key: RATE_LIMIT_REQUESTS
+        value: "30"
+      - key: RATE_LIMIT_WINDOW_SECONDS
+        value: "60"

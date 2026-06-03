@@ -31,6 +31,7 @@ import StaffLayout from './pages/staff/StaffLayout';
 import StaffEquipment from './pages/staff/StaffEquipment';
 import StaffPackages from './pages/staff/StaffPackages';
 import ProtectedRoute from './components/ProtectedRoute';
+import ChatWidget from './components/ChatWidget';
 import './App.css';
 
 function App() {
@@ -97,6 +98,10 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+
+        {/* Buddy support chat widget — visible on every page */}
+        <ChatWidget />
+
         </BrowserRouter>
       </AuthProvider>
     </Suspense>

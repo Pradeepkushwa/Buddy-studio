@@ -8,6 +8,7 @@ Full-stack web application for a photography studio. Handles bookings, availabil
 
 - **Backend**: Ruby on Rails 8.1 (API-only mode), Ruby >= 3.2.0
 - **Frontend**: React 18 with React Router DOM
+- **Support Agent**: Python FastAPI (`buddy-agent/`) — Gemini-powered chat widget
 - **Database**: SQLite3 (development), PostgreSQL (production)
 - **Authentication**: JWT (JSON Web Tokens) + bcrypt password hashing
 - **Email**: Gmail SMTP for live OTP delivery (signup, password reset, email change)
@@ -30,8 +31,21 @@ bin/rails server -p 3001
 ```bash
 cd frontend
 npm install
+cp .env.example .env        # REACT_APP_AGENT_URL, API URL, support phone
 npm start                   # runs on port 3000
 ```
+
+### Buddy Agent (optional — chat widget)
+
+```bash
+cd buddy-agent
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env        # add GEMINI_API_KEY
+uvicorn app.main:app --reload --port 8000
+```
+
+**Render deploy (3rd service, existing apps safe):** see [docs/DEPLOY-BUDDY-AGENT.md](docs/DEPLOY-BUDDY-AGENT.md)
 
 ### Default Admin
 
