@@ -1,4 +1,8 @@
-# Create default admin
+# Create default admin — only one admin allowed at a time
+# First, demote all existing admins so no old admin can login as admin
+User.where(role: 'admin').where.not(email: ENV['ADMIN_EMAIL']).update_all(role: 'customer')
+puts "Demoted all previous admin accounts to customer role"
+
 admin = User.find_or_initialize_by(email: ENV['ADMIN_EMAIL'])
 if admin.new_record?
   admin.assign_attributes(
@@ -12,7 +16,6 @@ if admin.new_record?
   admin.save!
   puts "Created admin: #{admin.email}"
 else
-  # Always ensure the admin user has admin role and is active
   admin.update_columns(
     role: 'admin',
     verification_status: 'approved',
