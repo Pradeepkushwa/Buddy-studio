@@ -2,6 +2,8 @@
 
 AI-powered support assistant for Buddy Studio — built with FastAPI + **Google Gemini (free tier)** by default.
 
+> **Secrets:** Never commit `.env` or real API keys / phone numbers. Use `.env.example` placeholders only. Set real values locally in `.env` and on Render in the dashboard.
+
 ## Architecture
 
 ```
@@ -11,7 +13,7 @@ User (Browser)
 React ChatWidget (floating bubble — Buddy Studio frontend)
      |  POST /chat
      v
-Buddy Agent — Python FastAPI  ←── this repo
+Buddy Agent — Python FastAPI  ←── this folder
      |
      +──> Knowledge Base (instant, free)
      |
@@ -24,37 +26,40 @@ Buddy Agent — Python FastAPI  ←── this repo
 ## Quick Start (Local)
 
 ```bash
-# 1. Clone Buddy Studio monorepo and enter agent folder
-git clone https://github.com/Pradeepkushwa/Buddy-studio.git
+# 1. Clone monorepo and enter agent folder
+git clone https://github.com/your-org/Buddy-studio.git
 cd Buddy-studio/buddy-agent
 
-# 2. Create virtual environment
-python -m venv venv
+# 2. Create virtual environment (recreate if folder was moved)
+python3 -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# 3. Install dependencies
-pip install -r requirements.txt
+# 3. Install dependencies (use python -m pip if `pip` not found)
+python3 -m pip install -r requirements.txt
 
-# 4. Set environment variables
+# 4. Set environment variables (local only — file is gitignored)
 cp .env.example .env
-# Edit .env — add GEMINI_API_KEY from https://aistudio.google.com/apikey
+# Edit .env:
+#   GEMINI_API_KEY=xxxx   (real key from https://aistudio.google.com/apikey)
+#   SUPPORT_PHONE=+91-XXXXXXXXXX   (your real studio number)
 
 # 5. Run
 uvicorn app.main:app --reload --port 8000
 ```
 
-API docs available at: http://localhost:8000/docs
+API docs: http://localhost:8000/docs
 
 ## API Reference
 
 ### `GET /health`
-Returns service health status.
+Returns service health and `support_phone` (from env).
 
 ### `POST /chat`
 ```json
 {
   "user_id": "user_123",
-  "message": "login nahi ho raha"
+  "message": "login nahi ho raha",
+  "language": "hi"
 }
 ```
 Response:
@@ -62,15 +67,13 @@ Response:
 {
   "reply": "Login ke liye...",
   "escalate": false,
-  "escalation_reason": null
+  "escalation_reason": null,
+  "conversation_done": false
 }
 ```
 
-### `GET /conversation/{user_id}`
-Returns stored conversation history.
-
-### `DELETE /conversation/{user_id}`
-Clears conversation history.
+### `GET /conversation/{user_id}` — history  
+### `DELETE /conversation/{user_id}` — clear history
 
 ## Agent Decision Flow
 
@@ -78,66 +81,49 @@ Clears conversation history.
 User message
      |
      v
-[1] Escalation keyword check
-     |── critical/payment/angry → escalate immediately
-     |
-     v
-[2] Knowledge base search
-     |── match found → return KB answer (no LLM cost)
-     |
-     v
-[3] Repeat counter check
-     |── >= 3 unresolved → escalate
-     |
-     v
-[4] OpenAI GPT-4o-mini call
-     |── JSON response with reply + escalate flag
-     v
-Return response
+[0] Thanks / done → polite close
+[1] Escalation keywords → escalate if critical
+[2] Knowledge base → instant answer
+[3] Repeat counter → escalate after threshold
+[4] LLM (Gemini / OpenAI / none)
 ```
-
-## Escalation
-
-Agent escalates (shows support contact) when:
-- Keywords: `refund`, `fraud`, `payment stuck`, `data lost`, `angry`, `complaint`
-- Same issue repeated 3+ times
-- LLM flags low confidence
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
+| Variable | Required | Example in docs | Description |
+|----------|----------|-----------------|-------------|
 | `LLM_PROVIDER` | No | `gemini` | `gemini`, `openai`, or `none` |
-| `GEMINI_API_KEY` | Yes (if gemini) | — | Free key from Google AI Studio |
-| `GEMINI_MODEL` | No | `gemini-flash-latest` | Gemini model name |
-| `OPENAI_API_KEY` | Yes (if openai) | — | Only when using paid OpenAI |
-| `SUPPORT_PHONE` | No | `+91-9999999999` | Support phone / WhatsApp |
-| `ALLOWED_ORIGINS` | No | `*` | CORS origins (comma-separated) |
+| `GEMINI_API_KEY` | Yes (if gemini) | `xxxx...` | Google AI Studio key — **secret** |
+| `GEMINI_MODEL` | No | `gemini-flash-latest` | Gemini model |
+| `OPENAI_API_KEY` | Yes (if openai) | `sk-xxxx...` | OpenAI key — **secret** |
+| `SUPPORT_PHONE` | No | `+91-XXXXXXXXXX` | Support phone / WhatsApp |
+| `ALLOWED_ORIGINS` | No | `http://localhost:3000` | CORS origins (comma-separated) |
 | `ESCALATION_THRESHOLD` | No | `3` | Repeat messages before escalation |
 
 ## Running Tests
 
 ```bash
-pip install pytest pytest-asyncio
-pytest tests/ -v
+python3 -m pip install pytest pytest-asyncio
+LLM_PROVIDER=none python3 -m pytest tests/ -v
 ```
 
 ## Deployment on Render
 
-1. Push this repo to GitHub
-2. Go to Render → New → Web Service → connect your repo
-3. Build command: `pip install -r requirements.txt`
-4. Start command: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
-5. Add environment variable: `OPENAI_API_KEY` (secret)
-6. Update `ALLOWED_ORIGINS` with your frontend URL
+1. Same **Buddy-studio** repo; **Root Directory** = `buddy-agent`
+2. Build: `pip install -r requirements.txt`
+3. Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+4. Health check: `/health`
+5. Set in dashboard (secrets / real values — not in git):
+   - `GEMINI_API_KEY` = your real key
+   - `SUPPORT_PHONE` = your real number
+   - `ALLOWED_ORIGINS` = your real frontend URL
 
-Or use the included `render.yaml` for one-click deploy.
+See [../docs/DEPLOY-BUDDY-AGENT.md](../docs/DEPLOY-BUDDY-AGENT.md) for full steps.
 
 ## V2 Roadmap
 
 - [ ] PostgreSQL for persistent conversation history
-- [ ] RAG with vector database for richer knowledge
-- [ ] LangGraph for multi-step agent workflows
+- [ ] RAG with vector database
+- [ ] LangGraph workflows
 - [ ] WhatsApp / Email integration
 - [ ] Ticket creation on escalation
-- [ ] Human handoff

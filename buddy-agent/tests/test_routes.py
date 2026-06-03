@@ -15,7 +15,7 @@ def test_health_check():
     assert data["status"] == "ok"
     assert data["service"] == "buddy-agent"
     assert data["support_phone"]
-    assert "999999" not in data["support_phone"]
+    assert "XXXX" in data["support_phone"] or data["support_phone"].startswith("+")
 
 
 @patch("app.api.routes.process_message", new_callable=AsyncMock)

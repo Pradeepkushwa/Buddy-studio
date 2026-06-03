@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import BuddyAgentIcon from './BuddyAgentIcon';
 
 const AGENT_URL = process.env.REACT_APP_AGENT_URL || 'http://localhost:8000';
-const DEFAULT_SUPPORT_PHONE = '+91-6260261764';
+const DEFAULT_SUPPORT_PHONE = '+91-XXXXXXXXXX';
 
 const BUBBLE_SIZE = 58;
 const WINDOW_GAP = 14;
@@ -76,8 +76,10 @@ function clampPosition(pos) {
 }
 
 function resolveSupportPhone(envValue, fromAgent) {
-  if (fromAgent && !fromAgent.includes('999999')) return fromAgent;
-  if (envValue && !envValue.includes('999999')) return envValue;
+  const isPlaceholder = (n) =>
+    !n || n.includes('XXXX') || n.includes('999999');
+  if (fromAgent && !isPlaceholder(fromAgent)) return fromAgent;
+  if (envValue && !isPlaceholder(envValue)) return envValue;
   return DEFAULT_SUPPORT_PHONE;
 }
 
@@ -113,11 +115,40 @@ export default function ChatWidget() {
     localStorage.setItem('buddy_chat_pos', JSON.stringify(clamped));
   }, []);
 
+  const clearServerHistory = useCallback(() => {
+    if (userId) {
+      fetch(`${AGENT_URL}/conversation/${userId}`, { method: 'DELETE' }).catch(() => {});
+    }
+  }, [userId]);
+
+  /** UI + agent memory reset. showGreeting=true → welcome now (↺); false → fresh on next open */
+  const resetChatState = useCallback(
+    ({ showGreeting = false } = {}) => {
+      clearServerHistory();
+      setEscalated(false);
+      setInput('');
+      setLoading(false);
+      if (showGreeting) {
+        setHasGreeted(true);
+        setMessages([{ role: 'assistant', content: COPY[lang].greeting, id: Date.now() }]);
+      } else {
+        setHasGreeted(false);
+        setMessages([]);
+      }
+    },
+    [clearServerHistory, lang]
+  );
+
+  const closeChat = useCallback(() => {
+    resetChatState();
+    setOpen(false);
+  }, [resetChatState]);
+
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     if (!open) return;
-    idleTimerRef.current = setTimeout(() => setOpen(false), IDLE_MS);
-  }, [open]);
+    idleTimerRef.current = setTimeout(closeChat, IDLE_MS);
+  }, [open, closeChat]);
 
   useEffect(() => {
     fetch(`${AGENT_URL}/health`)
@@ -178,8 +209,8 @@ export default function ChatWidget() {
 
   const scheduleAutoClose = useCallback(() => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    closeTimerRef.current = setTimeout(() => setOpen(false), CLOSE_AFTER_DONE_MS);
-  }, []);
+    closeTimerRef.current = setTimeout(closeChat, CLOSE_AFTER_DONE_MS);
+  }, [closeChat]);
 
   const toggleLang = () => {
     const next = lang === 'hi' ? 'en' : 'hi';
@@ -238,15 +269,10 @@ export default function ChatWidget() {
     }
   };
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => closeChat();
 
   const handleReset = () => {
-    setMessages([{ role: 'assistant', content: COPY[lang].greeting, id: Date.now() }]);
-    setEscalated(false);
-    setInput('');
-    if (userId) {
-      fetch(`${AGENT_URL}/conversation/${userId}`, { method: 'DELETE' }).catch(() => {});
-    }
+    resetChatState({ showGreeting: true });
     resetIdleTimer();
   };
 
@@ -292,7 +318,13 @@ export default function ChatWidget() {
     }
 
     if (!d.moved) {
-      setOpen((v) => !v);
+      setOpen((wasOpen) => {
+        if (wasOpen) {
+          resetChatState();
+          return false;
+        }
+        return true;
+      });
     }
   };
 
