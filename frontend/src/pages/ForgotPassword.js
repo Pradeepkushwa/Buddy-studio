@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
 import { useTranslation } from 'react-i18next';
+import PasswordInput from '../components/PasswordInput';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -123,12 +124,12 @@ export default function ForgotPassword() {
           <form onSubmit={handleResetPassword}>
             <div className="form-group">
               <label htmlFor="new-password">{t('auth.new_password')}</label>
-              <input id="new-password" type="password" value={password} onChange={e => setPassword(e.target.value)}
+              <PasswordInput id="new-password" value={password} onChange={e => setPassword(e.target.value)}
                 required placeholder={t('auth.min_6_chars')} minLength={6} />
             </div>
             <div className="form-group">
               <label htmlFor="confirm-password">{t('auth.confirm_password_label')}</label>
-              <input id="confirm-password" type="password" value={passwordConfirmation}
+              <PasswordInput id="confirm-password" value={passwordConfirmation}
                 onChange={e => setPasswordConfirmation(e.target.value)}
                 required placeholder={t('auth.re_enter_password')} minLength={6} />
             </div>

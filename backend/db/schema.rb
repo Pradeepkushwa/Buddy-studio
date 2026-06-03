@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_03_000001) do
   create_table "appointments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -143,6 +143,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000001) do
     t.index ["rating"], name: "index_reviews_on_rating"
   end
 
+  create_table "user_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "jti", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["jti"], name: "index_user_sessions_on_jti", unique: true
+    t.index ["user_id", "created_at"], name: "index_user_sessions_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_user_sessions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "avatar_url"
     t.datetime "created_at", null: false
@@ -171,4 +182,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000001) do
   add_foreign_key "packages", "categories"
   add_foreign_key "packages", "users", column: "created_by_id"
   add_foreign_key "reviews", "bookings"
+  add_foreign_key "user_sessions", "users"
 end

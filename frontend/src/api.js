@@ -19,6 +19,13 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      // Redirect to login only if not already on login/auth page
+      const isAuthPage = ['/login', '/signup', '/verify-otp', '/forgot-password'].some(
+        (path) => window.location.pathname.startsWith(path)
+      );
+      if (!isAuthPage) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   }

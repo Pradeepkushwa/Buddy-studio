@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
   # Auth
-  post 'auth/signup', to: 'auth#signup'
-  post 'auth/login', to: 'auth#login'
-  post 'auth/verify_otp', to: 'auth#verify_otp'
-  post 'auth/resend_otp', to: 'auth#resend_otp'
-  get  'auth/me', to: 'auth#me'
+  post   'auth/signup', to: 'auth#signup'
+  post   'auth/login', to: 'auth#login'
+  delete 'auth/logout', to: 'auth#logout'
+  post   'auth/verify_otp', to: 'auth#verify_otp'
+  post   'auth/resend_otp', to: 'auth#resend_otp'
+  get    'auth/me', to: 'auth#me'
 
   # Password Reset
   post 'password/forgot', to: 'password_resets#forgot'
