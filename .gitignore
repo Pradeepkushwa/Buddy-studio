@@ -1,0 +1,15 @@
+# Docker local dev secrets — NEVER commit
+.env.docker
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

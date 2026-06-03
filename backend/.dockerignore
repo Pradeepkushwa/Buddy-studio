@@ -1,0 +1,10 @@
+log/
+tmp/
+.bundle/
+vendor/bundle/
+node_modules/
+.env
+db/*.sqlite3
+db/*.sqlite3-journal
+coverage/
+spec/reports/

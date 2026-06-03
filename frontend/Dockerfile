@@ -1,17 +1,21 @@
 # ── LOCAL DEV ONLY ─────────────────────────────────────────────────────────────
-# Render deployment uses render.yaml (runtime: python) — NOT this Dockerfile.
+# Render deployment uses static site build — NOT this Dockerfile.
 # ───────────────────────────────────────────────────────────────────────────────
-FROM python:3.12-slim
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Install deps first (cached layer — only re-runs if requirements.txt changes)
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install deps first (cached layer — only re-runs if package.json changes)
+COPY package*.json ./
+RUN npm install
 
 # Copy source code
 COPY . .
 
-EXPOSE 8000
+EXPOSE 3000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Required for file-watching inside Docker on Mac
+ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
+
+CMD ["npm", "start"]
