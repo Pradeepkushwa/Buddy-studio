@@ -129,8 +129,11 @@ jobs:
             "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
 
       - name: Trigger Buddy Agent Deploy Hook
-        if: ${{ secrets.RENDER_BUDDY_AGENT_DEPLOY_HOOK_URL != '' }}
+        env:
+          BUDDY_AGENT_DEPLOY_HOOK: ${{ secrets.RENDER_BUDDY_AGENT_DEPLOY_HOOK_URL }}
         run: |
-          curl --fail-with-body \
-            -X POST \
-            "${{ secrets.RENDER_BUDDY_AGENT_DEPLOY_HOOK_URL }}"
+          if [ -n "$BUDDY_AGENT_DEPLOY_HOOK" ]; then
+            curl --fail-with-body -X POST "$BUDDY_AGENT_DEPLOY_HOOK"
+          else
+            echo "RENDER_BUDDY_AGENT_DEPLOY_HOOK_URL not set — skip agent deploy hook"
+          fi
