@@ -40,6 +40,8 @@ jobs:
 
       - name: Run RSpec
         run: bundle exec rspec --format progress
+        env:
+          FULL_COVERAGE_CHECK: 'true'
 
   # ─────────────────────────────────────────────
   # Job 2: React Frontend Tests + Build
