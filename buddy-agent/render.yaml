@@ -13,11 +13,11 @@ services:
       - key: GEMINI_MODEL
         value: gemini-flash-latest
       - key: SUPPORT_PHONE
-        value: +91-9999999999   # replace with real number
+        value: +91-XXXXXXXXXX   # set your real number in Render dashboard
       - key: SUPPORT_WHATSAPP
-        value: +91-9999999999   # replace with real number
+        value: +91-XXXXXXXXXX
       - key: ALLOWED_ORIGINS
-        value: https://your-frontend.onrender.com  # replace with real frontend URL
+        value: https://xxxx-xxxx.onrender.com   # your real frontend URL
       - key: MAX_HISTORY_MESSAGES
         value: "20"
       - key: ESCALATION_THRESHOLD

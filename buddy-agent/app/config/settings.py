@@ -1,8 +1,7 @@
 from pydantic_settings import BaseSettings
 
-# ── Buddy Studio official support (Call & WhatsApp) ─────────────────────────────
-# Apna asli studio number yahan likho. .env mein SUPPORT_PHONE set karo to override.
-BUDDY_STUDIO_SUPPORT_NUMBER = "+91-6260261764"
+# ── Support phone placeholder (real number only in .env / Render — never commit) ─
+BUDDY_STUDIO_SUPPORT_NUMBER = "+91-XXXXXXXXXX"
 
 
 class Settings(BaseSettings):
