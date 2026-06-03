@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Buddy Studio — Local Development Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: #1a1a1a; background: #fff; padding: 40px; max-width: 900px; margin: auto; }
+  h1 { font-size: 28px; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-bottom: 24px; }
+  h2 { font-size: 20px; color: #2980b9; margin: 32px 0 12px; border-left: 4px solid #3498db; padding-left: 12px; }
+  h3 { font-size: 16px; color: #34495e; margin: 20px 0 8px; }
+  p { margin: 8px 0; line-height: 1.7; color: #444; }
+  .section { background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 16px 0; border: 1px solid #e9ecef; }
+  .section.python { border-left: 4px solid #f39c12; }
+  .section.react { border-left: 4px solid #61dafb; }
+  .section.rails { border-left: 4px solid #cc0000; }
+  pre { background: #1e1e1e; color: #d4d4d4; padding: 14px 16px; border-radius: 6px; overflow-x: auto; margin: 10px 0; font-family: 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.6; }
+  code { background: #f0f0f0; color: #c0392b; padding: 2px 6px; border-radius: 3px; font-family: 'Menlo', monospace; font-size: 12px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; color: white; margin: 0 4px; }
+  .badge.python { background: #f39c12; }
+  .badge.react  { background: #0ea5e9; }
+  .badge.rails  { background: #cc0000; }
+  .note { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 13px; }
+  .tip  { background: #d1fae5; border: 1px solid #34d399; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 13px; }
+  .error{ background: #fee2e2; border: 1px solid #f87171; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th { background: #2c3e50; color: white; padding: 10px; text-align: left; font-size: 13px; }
+  td { padding: 9px 10px; border-bottom: 1px solid #e9ecef; font-size: 13px; }
+  tr:hover td { background: #f8f9fa; }
+  .step { display: flex; gap: 12px; margin: 10px 0; }
+  .step-num { background: #3498db; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; margin-top: 2px; }
+  .step-content { flex: 1; }
+  .toc { background: #f0f4f8; border-radius: 8px; padding: 16px 20px; margin: 16px 0 28px; }
+  .toc h3 { color: #2c3e50; margin-bottom: 8px; }
+  .toc ul { list-style: none; }
+  .toc li { padding: 3px 0; font-size: 13px; }
+  .toc a { color: #2980b9; text-decoration: none; }
+  @media print {
+    body { padding: 20px; font-size: 12px; }
+    pre { font-size: 11px; }
+    .section { break-inside: avoid; }
+    h2 { break-before: auto; }
+  }
+  hr { border: none; border-top: 1px solid #e9ecef; margin: 28px 0; }
+</style>
+</head>
+<body>
+
+<h1>🖥️ Buddy Studio — Local Development Guide</h1>
+<p style="color:#666; margin-bottom:8px;">Step-by-step guide to run all 3 services locally: Python Agent, React Frontend, Rails Backend</p>
+<p style="font-size:12px; color:#999;">Save as PDF: Press <strong>Cmd + P</strong> → Choose <strong>Save as PDF</strong></p>
+
+<div style="background:#0f172a;color:#fff;border-radius:10px;padding:20px 24px;margin:16px 0;">
+  <div style="font-size:18px;font-weight:700;margin-bottom:8px;">⚡ FASTEST WAY — Docker (Recommended)</div>
+  <div style="color:#94a3b8;font-size:13px;margin-bottom:12px;">Naye machine pe sirf Docker Desktop install karo (ek baar), phir bas 3 commands:</div>
+  <pre style="background:#1e293b;margin:0;border-radius:6px;">git clone https://github.com/Pradeepkushwa/Buddy-studio
+cd Buddy-studio
+make setup      # .env file banao, API key bharo
+make start      # saari 3 services ek sath chalu 🚀</pre>
+  <div style="color:#4ade80;font-size:13px;margin-top:10px;">✅ 15 minutes mein ready — Python/Node/Ruby install karne ki zaroorat nahi!</div>
+</div>
+
+<div class="toc">
+  <h3>📋 Table of Contents</h3>
+  <ul>
+    <li>1. <a href="#docker">⚡ Docker Setup (RECOMMENDED — 15 min)</a></li>
+    <li>2. <a href="#make-commands">Make Commands Cheatsheet</a></li>
+    <li>3. <a href="#prereqs">Manual Setup — Prerequisites</a></li>
+    <li>4. <a href="#python">Python Agent (buddy-agent)</a> — FastAPI on port 8000</li>
+    <li>5. <a href="#react">React Frontend (frontend)</a> — on port 3000</li>
+    <li>6. <a href="#rails">Rails Backend (backend)</a> — on port 3001</li>
+    <li>7. <a href="#all3">Run All 3 Together (Manual)</a></li>
+    <li>8. <a href="#tests">Running Tests</a></li>
+    <li>9. <a href="#troubleshoot">Troubleshooting Common Errors</a></li>
+    <li>10. <a href="#envvars">Environment Variables Reference</a></li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="docker">1. ⚡ Docker Setup — RECOMMENDED</h2>
+<!-- ============================================================ -->
+
+<div class="section" style="border-left:4px solid #0f172a;">
+
+<p>Docker matlab <strong>ek box jisme sab kuch already installed hai</strong> — Python, Node, Ruby, sab. Tumhe kuch install nahi karna.</p>
+
+<h3>Step 1 — Docker Desktop install karo (ek baar)</h3>
+<p>Download: <strong>https://www.docker.com/products/docker-desktop/</strong></p>
+<p>Mac pe install karo, phir Docker Desktop open karo (whale icon dikhega menu bar mein).</p>
+
+<h3>Step 2 — Repository clone karo</h3>
+<pre>git clone https://github.com/Pradeepkushwa/Buddy-studio
+cd Buddy-studio</pre>
+
+<h3>Step 3 — .env file setup</h3>
+<pre>make setup</pre>
+<p>Ye command <code>.env.docker</code> file banayega. Phir isse open karo aur sirf 2 cheezein bharo:</p>
+<pre>GEMINI_API_KEY=your_gemini_api_key_here   ← yahan apni key daalo
+SUPPORT_PHONE=+91-XXXXXXXXXX              ← real phone number daalo</pre>
+<div class="note">⚠️ <code>.env.docker</code> kabhi bhi git mein commit mat karo — .gitignore mein add hai.</div>
+
+<h3>Step 4 — Sab kuch start karo</h3>
+<pre>make start</pre>
+<p>Pehli baar 5-10 minute lagenge (images download hoti hain). Uske baad:</p>
+<div class="tip">
+  ✅ React Frontend: <strong>http://localhost:3000</strong><br>
+  ✅ Rails API: <strong>http://localhost:3001</strong><br>
+  ✅ Python Agent: <strong>http://localhost:8000</strong><br>
+  ✅ Agent Docs: <strong>http://localhost:8000/docs</strong>
+</div>
+
+<h3>Daily use (next time)</h3>
+<pre>make start    # start
+make stop     # stop
+make logs     # live logs dekhne ke liye</pre>
+
+<h3>Code change kiya?</h3>
+<pre>make build    # rebuild karo phir make start</pre>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="make-commands">2. Make Commands Cheatsheet</h2>
+<!-- ============================================================ -->
+
+<div class="section">
+<table>
+  <tr><th>Command</th><th>Kya karta hai</th></tr>
+  <tr><td><code>make setup</code></td><td>Pehli baar: .env.docker file banao</td></tr>
+  <tr><td><code>make start</code></td><td>Saari 3 services start karo (background mein)</td></tr>
+  <tr><td><code>make stop</code></td><td>Saari services band karo</td></tr>
+  <tr><td><code>make restart</code></td><td>Saari services restart karo</td></tr>
+  <tr><td><code>make build</code></td><td>Docker images rebuild karo (code change ke baad)</td></tr>
+  <tr><td><code>make logs</code></td><td>Saari services ke live logs dekhna</td></tr>
+  <tr><td><code>make logs-agent</code></td><td>Sirf Python agent ke logs</td></tr>
+  <tr><td><code>make logs-rails</code></td><td>Sirf Rails ke logs</td></tr>
+  <tr><td><code>make status</code></td><td>Kaun si services chal rahi hain</td></tr>
+  <tr><td><code>make test</code></td><td>Saare tests run karo</td></tr>
+  <tr><td><code>make test-agent</code></td><td>Sirf Python tests</td></tr>
+  <tr><td><code>make test-rails</code></td><td>Sirf Rails tests</td></tr>
+  <tr><td><code>make shell-agent</code></td><td>Python container ke andar terminal kholna</td></tr>
+  <tr><td><code>make shell-rails</code></td><td>Rails container ke andar terminal kholna</td></tr>
+  <tr><td><code>make rails-console</code></td><td>Rails console kholna</td></tr>
+  <tr><td><code>make clean</code></td><td>Sab containers + images delete karo (fresh start)</td></tr>
+</table>
+<div class="tip">✅ <code>make</code> — sirf ye likhne se saari commands list dikhti hain</div>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="prereqs">3. Manual Setup — Prerequisites (Docker nahi use karna to)</h2>
+<!-- ============================================================ -->
+
+<div class="section">
+<h3>Check what you already have</h3>
+<pre>python3 --version    # Need 3.10+
+node --version       # Need 18+
+ruby --version       # Need 3.x
+rails --version
+git --version</pre>
+
+<h3>Install Homebrew (Mac — if not installed)</h3>
+<pre>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre>
+
+<h3>Install Node.js (for React)</h3>
+<pre>brew install node</pre>
+
+<h3>Install Ruby + Rails (if not installed)</h3>
+<pre>brew install rbenv ruby-build
+rbenv install 3.2.0
+rbenv global 3.2.0
+gem install rails bundler</pre>
+
+<h3>Install PostgreSQL (for Rails database)</h3>
+<pre>brew install postgresql@14
+brew services start postgresql@14</pre>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="python">4. <span class="badge python">Python</span> Buddy Agent (FastAPI) — Manual</h2>
+<!-- ============================================================ -->
+
+<p>Folder: <code>Buddy-studio/buddy-agent/</code> | Runs on: <code>http://localhost:8000</code></p>
+
+<div class="section python">
+
+<h3>Step 1 — Go to the folder</h3>
+<pre>cd ~/Pradeep/Buddy-studio/buddy-agent</pre>
+
+<h3>Step 2 — Create Virtual Environment (venv)</h3>
+<div class="note">⚠️ Always create venv inside the <code>buddy-agent</code> folder. Do this only ONCE.</div>
+<pre>python3 -m venv venv</pre>
+<p>This creates a <code>venv/</code> folder — it's like a private Python workspace for this project.</p>
+
+<h3>Step 3 — Activate venv</h3>
+<div class="note">⚠️ You must activate venv EVERY TIME you open a new terminal window.</div>
+<pre>source venv/bin/activate</pre>
+<p>After activation you'll see <code>(venv)</code> at the start of your terminal line like:</p>
+<pre>(venv) buddy-agent $</pre>
+
+<h3>Step 4 — Install packages</h3>
+<pre>pip install -r requirements.txt</pre>
+<p>Do this once, or whenever <code>requirements.txt</code> changes.</p>
+
+<h3>Step 5 — Create .env file</h3>
+<pre>cp .env.example .env</pre>
+<p>Then open <code>.env</code> and fill in your values:</p>
+<pre>LLM_PROVIDER=gemini
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
+SUPPORT_PHONE=+91-XXXXXXXXXX
+SUPPORT_WHATSAPP=+91-XXXXXXXXXX
+ALLOWED_ORIGINS=http://localhost:3000</pre>
+
+<h3>Step 6 — Start the server</h3>
+<pre>uvicorn app.main:app --reload --port 8000</pre>
+<p>The <code>--reload</code> flag auto-restarts when you change code.</p>
+
+<h3>Step 7 — Test it's working</h3>
+<pre># In a new terminal:
+curl http://localhost:8000/health</pre>
+<p>You should see a JSON response with <code>"status": "ok"</code></p>
+
+<div class="tip">✅ API docs available at: <strong>http://localhost:8000/docs</strong> (Swagger UI)</div>
+
+<h3>Deactivate venv (when done)</h3>
+<pre>deactivate</pre>
+
+<h3>Full flow — Copy paste this (after first setup)</h3>
+<pre>cd ~/Pradeep/Buddy-studio/buddy-agent
+source venv/bin/activate
+uvicorn app.main:app --reload --port 8000</pre>
+
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="react">5. <span class="badge react">React</span> Frontend — Manual</h2>
+<!-- ============================================================ -->
+
+<p>Folder: <code>Buddy-studio/frontend/</code> | Runs on: <code>http://localhost:3000</code></p>
+
+<div class="section react">
+
+<h3>Step 1 — Go to the folder</h3>
+<pre>cd ~/Pradeep/Buddy-studio/frontend</pre>
+
+<h3>Step 2 — Install Node packages</h3>
+<div class="note">⚠️ Do this ONCE (or when <code>package.json</code> changes)</div>
+<pre>npm install</pre>
+<p>This creates <code>node_modules/</code> folder (can take 1-2 minutes).</p>
+
+<h3>Step 3 — Create .env file</h3>
+<pre>cp .env.example .env</pre>
+<p>Fill in:</p>
+<pre>REACT_APP_API_URL=http://localhost:3001
+REACT_APP_AGENT_URL=http://localhost:8000
+REACT_APP_SUPPORT_PHONE=+91-XXXXXXXXXX</pre>
+
+<h3>Step 4 — Start React</h3>
+<pre>npm start</pre>
+<p>Browser will auto-open at <code>http://localhost:3000</code></p>
+
+<h3>Build for production (optional)</h3>
+<pre>npm run build</pre>
+
+<div class="tip">✅ React does NOT need venv. It uses <code>node_modules/</code> instead.</div>
+
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="rails">6. <span class="badge rails">Rails</span> Backend API — Manual</h2>
+<!-- ============================================================ -->
+
+<p>Folder: <code>Buddy-studio/backend/</code> | Runs on: <code>http://localhost:3001</code></p>
+
+<div class="section rails">
+
+<h3>Step 1 — Go to the folder</h3>
+<pre>cd ~/Pradeep/Buddy-studio/backend</pre>
+
+<h3>Step 2 — Install Ruby gems</h3>
+<div class="note">⚠️ Do this ONCE (or when <code>Gemfile</code> changes)</div>
+<pre>bundle install</pre>
+
+<h3>Step 3 — Setup database</h3>
+<pre># Create the database
+rails db:create
+
+# Run migrations
+rails db:migrate
+
+# (Optional) Add sample data
+rails db:seed</pre>
+
+<h3>Step 4 — Create credentials / .env</h3>
+<pre>cp .env.example .env   # if .env.example exists</pre>
+
+<h3>Step 5 — Start Rails server</h3>
+<pre>rails server -p 3001</pre>
+<p>Rails runs on port 3001 (so it doesn't conflict with React on 3000).</p>
+
+<h3>Test it's working</h3>
+<pre>curl http://localhost:3001/health
+# or
+curl http://localhost:3001/api/v1/users</pre>
+
+<div class="tip">✅ Rails does NOT need venv. It uses <code>Gemfile</code> + bundler instead.</div>
+
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="all3">7. Run All 3 Together — Manual (without Docker)</h2>
+<!-- ============================================================ -->
+
+<div class="section">
+<p>You need <strong>3 separate terminal windows/tabs</strong>:</p>
+
+<h3>Terminal 1 — Rails Backend</h3>
+<pre>cd ~/Pradeep/Buddy-studio/backend
+bundle install           # first time only
+rails db:migrate         # first time only
+rails server -p 3001</pre>
+
+<h3>Terminal 2 — Python Agent</h3>
+<pre>cd ~/Pradeep/Buddy-studio/buddy-agent
+source venv/bin/activate
+uvicorn app.main:app --reload --port 8000</pre>
+
+<h3>Terminal 3 — React Frontend</h3>
+<pre>cd ~/Pradeep/Buddy-studio/frontend
+npm start</pre>
+
+<table>
+  <tr><th>Service</th><th>URL</th><th>What it does</th></tr>
+  <tr><td>React (Frontend)</td><td>http://localhost:3000</td><td>Your website UI</td></tr>
+  <tr><td>Rails (Backend)</td><td>http://localhost:3001</td><td>Database / API</td></tr>
+  <tr><td>Python Agent</td><td>http://localhost:8000</td><td>AI chat support</td></tr>
+</table>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="tests">8. Running Tests</h2>
+<!-- ============================================================ -->
+
+<div class="section">
+
+<h3><span class="badge python">Python</span> Tests (pytest)</h3>
+<pre>cd ~/Pradeep/Buddy-studio/buddy-agent
+source venv/bin/activate
+
+# Run all tests
+LLM_PROVIDER=none pytest tests/ -v
+
+# Run a single test file
+LLM_PROVIDER=none pytest tests/test_routes.py -v
+
+# Run with output (print statements visible)
+LLM_PROVIDER=none pytest tests/ -v -s</pre>
+
+<div class="note">⚠️ Always use <code>LLM_PROVIDER=none</code> for tests — it skips real API calls</div>
+
+<h3><span class="badge rails">Rails</span> Tests (RSpec)</h3>
+<pre>cd ~/Pradeep/Buddy-studio/backend
+
+# Run all tests
+bundle exec rspec
+
+# Run a specific file
+bundle exec rspec spec/models/user_spec.rb
+
+# Run with format
+bundle exec rspec --format documentation</pre>
+
+<h3><span class="badge react">React</span> Tests (Jest)</h3>
+<pre>cd ~/Pradeep/Buddy-studio/frontend
+
+# Run all tests
+npm test
+
+# Run once (no watch mode)
+npm test -- --watchAll=false
+
+# With coverage report
+npm test -- --coverage --watchAll=false</pre>
+
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="troubleshoot">9. Troubleshooting Common Errors</h2>
+<!-- ============================================================ -->
+
+<div class="section">
+
+<h3>Python — "command not found: python"</h3>
+<pre>python3 --version   # use python3, not python</pre>
+
+<h3>Python — "pip: command not found"</h3>
+<pre># Make sure venv is activated!
+source venv/bin/activate
+pip --version   # should work now</pre>
+
+<h3>Python — "ModuleNotFoundError"</h3>
+<pre>source venv/bin/activate      # activate first
+pip install -r requirements.txt   # then install</pre>
+
+<h3>Python — venv is broken (after moving folder)</h3>
+<pre>rm -rf venv                        # delete old venv
+python3 -m venv venv               # create fresh
+source venv/bin/activate
+pip install -r requirements.txt</pre>
+
+<h3>React — "npm: command not found"</h3>
+<pre>brew install node
+node --version    # check</pre>
+
+<h3>React — Port 3000 already in use</h3>
+<pre>PORT=3002 npm start   # use different port</pre>
+
+<h3>React — "Module not found" after git pull</h3>
+<pre>npm install    # someone added a new package</pre>
+
+<h3>Rails — "could not connect to server" (database)</h3>
+<pre>brew services start postgresql@14
+rails db:create
+rails db:migrate</pre>
+
+<h3>Rails — Port 3001 already in use</h3>
+<pre>lsof -i :3001          # find what's using it
+kill -9 &lt;PID&gt;          # kill it
+rails server -p 3001   # restart</pre>
+
+<h3>Rails — "bundler: command not found"</h3>
+<pre>gem install bundler
+bundle install</pre>
+
+<h3>General — Find what's running on a port</h3>
+<pre>lsof -i :8000   # Python agent
+lsof -i :3000   # React
+lsof -i :3001   # Rails</pre>
+
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="envvars">10. Environment Variables Reference</h2>
+<!-- ============================================================ -->
+
+<div class="section">
+
+<h3>Python Agent (<code>buddy-agent/.env</code>)</h3>
+<table>
+  <tr><th>Variable</th><th>Example Value</th><th>Required</th></tr>
+  <tr><td>LLM_PROVIDER</td><td>gemini</td><td>Yes</td></tr>
+  <tr><td>GEMINI_API_KEY</td><td>AIzaSy...</td><td>Yes</td></tr>
+  <tr><td>GEMINI_MODEL</td><td>gemini-1.5-flash</td><td>No (has default)</td></tr>
+  <tr><td>SUPPORT_PHONE</td><td>+91-6260261764</td><td>Yes</td></tr>
+  <tr><td>SUPPORT_WHATSAPP</td><td>+91-6260261764</td><td>No</td></tr>
+  <tr><td>ALLOWED_ORIGINS</td><td>http://localhost:3000</td><td>Yes</td></tr>
+</table>
+
+<h3>React Frontend (<code>frontend/.env</code>)</h3>
+<table>
+  <tr><th>Variable</th><th>Example Value</th><th>Required</th></tr>
+  <tr><td>REACT_APP_API_URL</td><td>http://localhost:3001</td><td>Yes</td></tr>
+  <tr><td>REACT_APP_AGENT_URL</td><td>http://localhost:8000</td><td>Yes</td></tr>
+  <tr><td>REACT_APP_SUPPORT_PHONE</td><td>+91-XXXXXXXXXX</td><td>No</td></tr>
+</table>
+
+<div class="tip">✅ <strong>Tip:</strong> After changing <code>.env</code> in React, restart <code>npm start</code> for changes to take effect.</div>
+<div class="note">⚠️ Never commit <code>.env</code> files to git. They are in <code>.gitignore</code>.</div>
+
+</div>
+
+<hr>
+
+<div style="text-align:center; color:#999; font-size:12px; margin-top:20px;">
+  Buddy Studio — Local Dev Guide | Generated Jun 2026
+</div>
+
+</body>
+</html>
