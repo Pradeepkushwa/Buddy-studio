@@ -74,8 +74,8 @@ git push origin main
 | `LLM_PROVIDER` | `gemini` | No |
 | `GEMINI_API_KEY` | Google AI Studio se key | **Yes** |
 | `GEMINI_MODEL` | `gemini-flash-latest` | No |
-| `SUPPORT_PHONE` | `+91-6260261764` | No |
-| `SUPPORT_WHATSAPP` | `+91-6260261764` | No |
+| `SUPPORT_PHONE` | `+91-XXXXXXXXXX` (apna asli number) | No |
+| `SUPPORT_WHATSAPP` | `+91-XXXXXXXXXX` | No |
 | `ALLOWED_ORIGINS` | Apna **live frontend URL** | No |
 
 **ALLOWED_ORIGINS example:**
@@ -96,7 +96,7 @@ https://www.tumhara-domain.com,https://buddy-studio-frontend.onrender.com
 
 1. **Create Web Service**  
 2. Deploy complete hone do → URL milega jaise: `https://buddy-agent-xxxx.onrender.com`  
-3. Test: browser mein `https://YOUR-AGENT-URL/health` → `"status":"ok"` aur `"support_phone":"+91-6260261764"`
+3. Test: browser mein `https://YOUR-AGENT-URL/health` → `"status":"ok"` aur sahi `support_phone` (jo Render par set kiya)
 
 ---
 
@@ -111,7 +111,7 @@ Existing **frontend** Web Service → **Environment**:
 | Key | Value |
 |-----|--------|
 | `REACT_APP_AGENT_URL` | `https://buddy-agent-xxxx.onrender.com` (Step B ka URL) |
-| `REACT_APP_SUPPORT_PHONE` | `+91-6260261764` |
+| `REACT_APP_SUPPORT_PHONE` | `+91-XXXXXXXXXX` (same as agent) |
 
 `REACT_APP_API_URL` — **change mat karo** (Rails backend URL same rehna chahiye).
 
@@ -124,7 +124,7 @@ Frontend service → **Manual Deploy** → **Deploy latest commit**
 
 1. Live site kholo → chat bubble dikhe  
 2. Message bhejo → reply aaye  
-3. Escalation par sahi number dikhe (6260261764, 999 nahi)
+3. Escalation par sahi support number dikhe (placeholder 999/XXXX nahi)
 
 ---
 
