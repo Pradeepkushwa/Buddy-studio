@@ -98,9 +98,11 @@ class AuthController < ApplicationController
       }, status: :forbidden
     end
 
-    token = encode_token(user.id)
+    encoded = encode_token(user.id)
+    UserSession.create_for(user, jti: encoded[:jti], expires_at: encoded[:expires_at])
     render json: {
-      token: token,
+      token: encoded[:token],
+      expires_at: encoded[:expires_at].to_i,
       user: user_response(user)
     }, status: :ok
   end
@@ -109,6 +111,16 @@ class AuthController < ApplicationController
   def me
     return render json: { error: 'Unauthorized' }, status: :unauthorized unless current_user
     render json: { user: user_response(current_user) }, status: :ok
+  end
+
+  # DELETE /auth/logout
+  def logout
+    raw_token = request.headers['Authorization']&.split(' ')&.last
+    payload = self.class.decode_token(raw_token)
+    if payload && payload[:jti]
+      UserSession.where(jti: payload[:jti]).delete_all
+    end
+    render json: { message: 'Logged out successfully' }, status: :ok
   end
 
   private

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Signup() {
   const { signup, updateUser } = useAuth();
@@ -64,11 +65,11 @@ export default function Signup() {
           </div>
           <div className="form-group">
             <label htmlFor="password">{t('auth.password')}</label>
-            <input id="password" name="password" type="password" value={form.password} onChange={handleChange} required minLength={6} placeholder={t('auth.min_6_chars')} />
+            <PasswordInput id="password" name="password" value={form.password} onChange={handleChange} required minLength={6} placeholder={t('auth.min_6_chars')} />
           </div>
           <div className="form-group">
             <label htmlFor="password_confirmation">{t('auth.confirm_password')}</label>
-            <input id="password_confirmation" name="password_confirmation" type="password" value={form.password_confirmation} onChange={handleChange} required />
+            <PasswordInput id="password_confirmation" name="password_confirmation" value={form.password_confirmation} onChange={handleChange} required />
           </div>
           <div className="form-group">
             <label htmlFor="role">{t('auth.i_am_a')}</label>

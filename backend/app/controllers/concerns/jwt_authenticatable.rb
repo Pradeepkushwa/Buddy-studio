@@ -21,17 +21,33 @@ module JwtAuthenticatable
     end
   end
 
-  def encode_token(user_id, exp: 24.hours.from_now)
+  def encode_token(user_id, exp: token_expiry)
     secret = ENV['SECRET_KEY_BASE'] || Rails.application.credentials.secret_key_base
-    payload = { sub: user_id, exp: exp.to_i }
-    JWT.encode(payload, secret, ALG)
+    jti = SecureRandom.uuid
+    payload = { sub: user_id, exp: exp.to_i, jti: jti }
+    token = JWT.encode(payload, secret, ALG)
+    { token: token, jti: jti, expires_at: exp }
+  end
+
+  def token_expiry
+    if ENV['TOKEN_EXPIRY_MINUTES'].present?
+      ENV['TOKEN_EXPIRY_MINUTES'].to_i.minutes.from_now
+    else
+      ENV.fetch('TOKEN_EXPIRY_HOURS', '8').to_i.hours.from_now
+    end
   end
 
   def current_user
     return @current_user if defined?(@current_user)
-    token = request.headers['Authorization']&.split(' ')&.last
-    payload = self.class.decode_token(token)
-    @current_user = payload ? User.find_by(id: payload[:sub]) : nil
+    raw_token = request.headers['Authorization']&.split(' ')&.last
+    payload = self.class.decode_token(raw_token)
+    return @current_user = nil unless payload
+
+    # Verify session is still active in DB (guards against forced logout)
+    jti = payload[:jti]
+    return @current_user = nil unless jti && UserSession.valid?(jti)
+
+    @current_user = User.find_by(id: payload[:sub])
   end
 
   def authenticate_user!

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Login() {
   const { login } = useAuth();
@@ -54,7 +55,7 @@ export default function Login() {
           </div>
           <div className="form-group">
             <label htmlFor="password">{t('auth.password')}</label>
-            <input id="password" name="password" type="password" value={form.password} onChange={handleChange} required placeholder={t('auth.password_placeholder')} />
+            <PasswordInput id="password" name="password" value={form.password} onChange={handleChange} required placeholder={t('auth.password_placeholder')} />
           </div>
           <button type="submit" className="btn-primary" disabled={submitting}>
             {submitting ? t('auth.logging_in') : t('auth.log_in')}
