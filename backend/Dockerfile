@@ -2,12 +2,13 @@
 # Render deployment uses native Ruby build — NOT this Dockerfile.
 # Uses SQLite for local dev (same as development env config in database.yml).
 # ───────────────────────────────────────────────────────────────────────────────
-FROM ruby:3.2-slim
+FROM ruby:3.4.7-slim
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
   build-essential \
   libsqlite3-dev \
+  libyaml-dev \
   nodejs \
   npm \
   curl \
