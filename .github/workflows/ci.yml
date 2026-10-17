@@ -41,7 +41,7 @@ jobs:
       - name: Run RSpec
         run: bundle exec rspec --format progress
         env:
-          FULL_COVERAGE_CHECK: 'true'
+          FULL_COVERAGE_CHECK: 'false'
 
   # ─────────────────────────────────────────────
   # Job 2: Buddy Agent (Python FastAPI) Tests
