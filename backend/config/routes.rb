@@ -31,6 +31,10 @@ Rails.application.routes.draw do
   get  'bookings/mine', to: 'bookings#mine'
   post 'bookings/:id/create_order', to: 'bookings#create_order'
   post 'bookings/:id/verify_payment', to: 'bookings#verify_payment'
+  post 'bookings/:booking_id/refund', to: 'payments#refund'
+
+# create webhook to initiate the refund process.
+  post 'razorpay/webhook', to: 'razorpay_webhooks#create'
 
   # Staff
   namespace :staff do

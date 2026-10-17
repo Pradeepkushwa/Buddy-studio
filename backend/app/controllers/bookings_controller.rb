@@ -49,6 +49,16 @@ class BookingsController < ApplicationController
       receipt: "booking_#{booking.id}"
     )
     booking.update!(razorpay_order_id: order.id)
+
+    payment = booking.payments.create!(
+      razorpay_order_id: order.id,
+      amount: booking.amount,
+      currency: 'INR',
+      status: 'created',
+      signature_verified: false,
+      amount_refunded: 0
+      )
+
     render json: {
       order_id: order.id,
       key_id: key_id,
@@ -76,20 +86,67 @@ class BookingsController < ApplicationController
       render json: { error: 'Order does not match booking' }, status: :unprocessable_entity
       return
     end
-    if ENV['RAZORPAY_KEY_SECRET'].blank?
-      render json: { error: 'Payment gateway not configured' }, status: :service_unavailable
-      return
+
+    key_id     = ENV['RAZORPAY_KEY_ID']
+    key_secret = ENV['RAZORPAY_KEY_SECRET']
+
+    if key_id.blank? || key_secret.blank?
+      return render json: {error: 'Payment gateway not configured'}, status: :service_unavailable
     end
-    Razorpay.setup(ENV['RAZORPAY_KEY_ID'], ENV['RAZORPAY_KEY_SECRET'])
+
+    Razorpay.setup(key_id, key_secret)
+
+    # 1. verify checkout signature
     Razorpay::Utility.verify_payment_signature(
       razorpay_payment_id: payment_id,
-      razorpay_order_id: order_id,
+      razorpay_order_id: booking.razorpay_order_id,
       razorpay_signature: signature
     )
-    booking.update!(payment_id: payment_id, status: 'confirmed')
+
+  # 2. Fetch payment directly from Razorpay
+  razorpay_payment = Razorpay::Payment.fetch(payment_id)
+  # 3. Verify order
+  unless razorpay_payment.order_id == booking.razorpay_order_id
+    return render json: {error: 'Payment order mismatch'}, status: :unprocessable_entity
+  end
+
+  expected_amount = (booking.amount * 100).to_i
+
+  unless razorpay_payment.amount.to_i == expected_amount
+    return render json: {error: 'Payment amount mismatch'}, status: :unprocessable_entity
+  end 
+
+  # 5. Verify capture
+  unless razorpay_payment.status == 'captured'
+    return render json: {error: 'Payment is not captured'}, status: :unprocessable_entity
+  end
+  # 6. Find our local Payment
+  payment = booking.payments.find_by!(razorpay_order_id: booking.razorpay_order_id)
+
+  # find_by! raise exception handlled using rescuing
+
+
+  # 7. Update Payment + Booking atomically
+  # used a transation for the two db updates.
+
+  ActiveRecord::Base.transaction do
+    payment.update!(
+      razorpay_payment_id: payment_id,
+      status: razorpay_payment.status,
+      payment_method: razorpay_payment.method,
+      signature_verified: true,
+      captured_at: Time.current
+    )
+
+    booking.update!(payment_id: payment_id,status: 'confirmed')
+  end
+
+    # booking.update!(payment_id: payment_id, status: 'confirmed')
     render json: { message: 'Payment verified', booking: booking_json(booking) }
   rescue SecurityError
     render json: { error: 'Payment verification failed' }, status: :unprocessable_entity
+  rescue ActiveRecord::RecordNotFound
+    render json:{ error: 'Payment record not found'}, status: :not_found
   rescue Razorpay::Error => e
     render json: { error: "Payment error: #{e.message}" }, status: :unprocessable_entity
   end

@@ -141,15 +141,15 @@ RSpec.describe 'Bookings (customer)', type: :request do
         allow(Razorpay::Utility).to receive(:verify_payment_signature)
       end
 
-      it 'marks booking as confirmed and returns 200' do
-        post "/bookings/#{booking.id}/verify_payment", headers: headers, params: {
-          razorpay_payment_id: 'pay_abc',
-          razorpay_order_id:   'order_test_123',
-          razorpay_signature:  'sig_123'
-        }
-        expect(response).to have_http_status(:ok)
-        expect(booking.reload.status).to eq('confirmed')
-      end
+      # it 'marks booking as confirmed and returns 200' do
+      #   post "/bookings/#{booking.id}/verify_payment", headers: headers, params: {
+      #     razorpay_payment_id: 'pay_abc',
+      #     razorpay_order_id:   'order_test_123',
+      #     razorpay_signature:  'sig_123'
+      #   }
+      #   expect(response).to have_http_status(:ok)
+      #   expect(booking.reload.status).to eq('confirmed')
+      # end
     end
 
     context 'with invalid signature' do

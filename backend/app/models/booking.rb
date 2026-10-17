@@ -6,6 +6,7 @@ class Booking < ApplicationRecord
   belongs_to :user
   belongs_to :package
   has_many :reviews, dependent: :nullify
+  has_many :payments, dependent: :destroy
 
   validates :event_start_date, presence: true
   validates :event_end_date, presence: true
