@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_16_234653) do
   create_table "appointments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -76,7 +76,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_000001) do
     t.datetime "created_at", null: false
     t.text "description"
     t.string "media_type", default: "photo", null: false
-    t.string "media_url", null: false
+    t.string "media_url"
     t.integer "position", default: 0, null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
@@ -129,6 +129,41 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_000001) do
     t.index ["featured"], name: "index_packages_on_featured"
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.decimal "amount_refunded", precision: 12, scale: 2, default: "0.0"
+    t.integer "booking_id", null: false
+    t.datetime "captured_at"
+    t.datetime "created_at", null: false
+    t.string "currency"
+    t.string "payment_method"
+    t.string "razorpay_order_id"
+    t.string "razorpay_payment_id"
+    t.string "razorpay_refund_id"
+    t.string "refund_status"
+    t.datetime "refunded_at"
+    t.boolean "signature_verified"
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_payments_on_booking_id"
+    t.index ["razorpay_order_id"], name: "index_payments_on_razorpay_order_id", unique: true
+    t.index ["razorpay_payment_id"], name: "index_payments_on_razorpay_payment_id", unique: true
+    t.index ["razorpay_refund_id"], name: "index_payments_on_razorpay_refund_id", unique: true
+  end
+
+  create_table "refunds", force: :cascade do |t|
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "INR", null: false
+    t.integer "payment_id", null: false
+    t.datetime "processed_at"
+    t.string "razorpay_refund_id", null: false
+    t.string "status", null: false
+    t.datetime "updated_at", null: false
+    t.index ["payment_id"], name: "index_refunds_on_payment_id"
+    t.index ["razorpay_refund_id"], name: "index_refunds_on_razorpay_refund_id", unique: true
+  end
+
   create_table "reviews", force: :cascade do |t|
     t.boolean "approved", default: false, null: false
     t.integer "booking_id"
@@ -173,6 +208,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_000001) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  create_table "webhook_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "event_id", null: false
+    t.string "event_type", null: false
+    t.datetime "processed_at"
+    t.string "provider", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "event_id"], name: "index_webhook_events_on_provider_and_event_id", unique: true
+  end
+
   add_foreign_key "appointments", "packages"
   add_foreign_key "bookings", "packages"
   add_foreign_key "bookings", "users"
@@ -181,6 +226,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_000001) do
   add_foreign_key "package_items", "packages"
   add_foreign_key "packages", "categories"
   add_foreign_key "packages", "users", column: "created_by_id"
+  add_foreign_key "payments", "bookings"
+  add_foreign_key "refunds", "payments"
   add_foreign_key "reviews", "bookings"
   add_foreign_key "user_sessions", "users"
 end

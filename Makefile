@@ -67,7 +67,7 @@ setup:
 
 start:
 	@echo "  🚀 Starting all services..."
-	@docker-compose up --build -d
+	@docker compose up --build -d
 	@echo ""
 	@echo "  ✅ All services started!"
 	@echo "  🌐 React Frontend : http://localhost:3000"
@@ -79,52 +79,51 @@ start:
 
 stop:
 	@echo "  🛑 Stopping all services..."
-	@docker-compose down
+	@docker compose down
 	@echo "  ✅ All services stopped."
-
 restart:
-	@docker-compose down
-	@docker-compose up --build -d
+	@docker compose down
+	@docker compose up --build -d
 	@echo "  ✅ All services restarted."
 
 build:
 	@echo "  🔨 Rebuilding Docker images..."
-	@docker-compose build --no-cache
+	@docker compose build --no-cache
 	@echo "  ✅ Build complete. Run 'make start' to start."
 
 # ── Logs ───────────────────────────────────────────────────────────────────────
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 logs-agent:
-	docker-compose logs -f buddy-agent
+	docker compose logs -f buddy-agent
 
 logs-frontend:
-	docker-compose logs -f frontend
+	docker compose logs -f frontend
 
 logs-rails:
-	docker-compose logs -f backend
+	docker compose logs -f backend
 
 # ── Individual Services ────────────────────────────────────────────────────────
 
 agent:
 	@echo "  🤖 Starting Python Agent only..."
-	@docker-compose up buddy-agent
+	@docker compose up buddy-agent
 
 frontend:
 	@echo "  ⚛️  Starting React Frontend only..."
-	@docker-compose up frontend
+	@docker compose up frontend
 
 rails:
 	@echo "  🛤  Starting Rails Backend only..."
-	@docker-compose up backend
+	@docker compose up backend
 
 # ── Status ─────────────────────────────────────────────────────────────────────
 
 status:
 	@echo "  📊 Service Status:"
-	@docker-compose ps
+	@docker compose ps
 	@echo ""
 	@echo "  🔍 Health checks:"
 	@curl -s http://localhost:8000/health && echo " ← Agent OK" || echo "  ❌ Agent not running"
@@ -137,11 +136,11 @@ test: test-agent test-rails
 
 test-agent:
 	@echo "  🧪 Running Python Agent tests..."
-	@docker-compose run --rm buddy-agent sh -c "LLM_PROVIDER=none pytest tests/ -v"
+	@docker compose run --rm buddy-agent sh -c "LLM_PROVIDER=none pytest tests/ -v"
 
 test-rails:
 	@echo "  🧪 Running Rails tests..."
-	@docker-compose run --rm backend bundle exec rspec
+	@docker compose run --rm backend bundle exec rspec
 
 test-agent-local:
 	@echo "  🧪 Running Python Agent tests locally (no Docker)..."
@@ -151,32 +150,32 @@ test-agent-local:
 
 shell-agent:
 	@echo "  🐚 Opening shell inside Python Agent container..."
-	@docker-compose exec buddy-agent sh
+	@docker compose exec buddy-agent sh
 
 shell-rails:
 	@echo "  🐚 Opening shell inside Rails container..."
-	@docker-compose exec backend bash
+	@docker compose exec backend bash
 
 shell-frontend:
 	@echo "  🐚 Opening shell inside Frontend container..."
-	@docker-compose exec frontend sh
+	@docker compose exec frontend sh
 
 rails-console:
 	@echo "  🛤  Opening Rails console..."
-	@docker-compose exec backend bundle exec rails console
+	@docker compose exec backend bundle exec rails console
 
 rails-migrate:
 	@echo "  🗃  Running Rails migrations..."
-	@docker-compose exec backend bundle exec rails db:migrate
+	@docker compose exec backend bundle exec rails db:migrate
 
 # ── Cleanup ────────────────────────────────────────────────────────────────────
 
 clean:
 	@echo "  🧹 Removing containers, networks, and images..."
-	@docker-compose down --rmi all --volumes --remove-orphans
+	@docker compose down --rmi all --volumes --remove-orphans
 	@echo "  ✅ Cleanup done. Run 'make start' to start fresh."
 
 clean-soft:
 	@echo "  🧹 Removing containers only (keeping images for faster restart)..."
-	@docker-compose down --remove-orphans
+	@docker compose down --remove-orphans
 	@echo "  ✅ Done."
